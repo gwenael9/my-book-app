@@ -2,10 +2,14 @@
 const eslint = require("@eslint/js");
 const tseslint = require("typescript-eslint");
 const angular = require("angular-eslint");
+const importPlugin = require("eslint-plugin-import")
 
 module.exports = tseslint.config(
   {
     files: ["**/*.ts"],
+    plugins: {
+      import: importPlugin
+    },
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -40,7 +44,20 @@ module.exports = tseslint.config(
       "prefer-const": "error",
       "no-var": "error",
       "eqeqeq": ["error", "always"],
+      "import/order": ["error", {
+        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
+        "alphabetize": { "order": "asc", "caseInsensitive": true },
+        "newlines-between": "always"
+      }],
+      "import/no-unresolved": "error",
     },
+    "settings": {
+      "import/resolver": {
+        "typescript": {
+          "project": "./tsconfig.json"
+        }
+      }
+    }
   },
   {
     files: ["**/*.html"],
