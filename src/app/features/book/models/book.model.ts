@@ -12,4 +12,5 @@ export interface Book {
   availableAt: Date;
   // l'utilisateur qui l'utilise
   userId?: number;
+  available: boolean;
 }

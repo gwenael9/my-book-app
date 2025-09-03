@@ -10,6 +10,7 @@ export const mockBooks: Book[] = [
     createdAt: new Date(),
     updatedAt: new Date(),
     availableAt: new Date(),
+    available: true,
   },
   {
     id: 2,
@@ -19,7 +20,8 @@ export const mockBooks: Book[] = [
     ownerId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
-    availableAt: new Date(),
+    availableAt: new Date('2025-09-04T00:00:00Z'),
+    available: false,
   },
   {
     id: 3,
@@ -29,6 +31,7 @@ export const mockBooks: Book[] = [
     ownerId: 1,
     createdAt: new Date(),
     updatedAt: new Date(),
-    availableAt: new Date(),
+    availableAt: new Date('2025-09-05T00:00:00Z'),
+    available: false,
   },
 ];

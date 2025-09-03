@@ -13,7 +13,7 @@ import { BookCardComponent } from './book.card.component';
   template: `
     <h2 class="text-primary font-semibold text-xl">Book List</h2>
     <div class="flex justify-center mt-5">
-      <div class="flex space-x-3">
+      <div class="flex flex-wrap gap-4">
         @for (book of bookService.getAllBooks(); track trackByBookId(book)) {
           <app-book-card [book]="book"></app-book-card>
         }
