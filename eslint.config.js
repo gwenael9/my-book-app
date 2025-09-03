@@ -45,9 +45,13 @@ module.exports = tseslint.config(
       "no-var": "error",
       "eqeqeq": ["error", "always"],
       "import/order": ["error", {
-        "groups": ["builtin", "external", "internal", "parent", "sibling", "index"],
-        "alphabetize": { "order": "asc", "caseInsensitive": true },
-        "newlines-between": "always"
+        groups: [
+          'builtin',       // Node modules
+          'external',      // npm packages
+          'internal',      // alias like @/...
+          ['parent', 'sibling', 'index'], // relative imports
+        ],
+        alphabetize: { order: 'asc', caseInsensitive: true },
       }],
       "import/no-unresolved": "error",
     },

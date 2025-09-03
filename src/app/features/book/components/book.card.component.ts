@@ -1,52 +1,46 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
-
+import { BookModalComponent } from './book.modal.component';
 import { Book } from '../models/book.model';
 
 @Component({
   selector: 'app-book-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, BookModalComponent],
   template: `
     <div
+      class="relative w-full h-40 md:h-80 mb-2 overflow-hidden rounded-lg group"
       role="button"
       tabindex="0"
-      class="relative border border-primary p-2 rounded-lg min-w-52 overflow-hidden"
       (click)="openModal()"
     >
-      @if (book.available) {
-        <span class="absolute bg-green-500 w-12 h-2 rotate-45 right-[-12px]"></span>
-      }
-      <h3 class="text-primary font-semibold">{{ book.title }}</h3>
-      <p class="text-sm text-gray-500 font-mono">{{ book.author }}</p>
-      <div class="mt-2 flex justify-end">
-        <div class="border px-2 rounded-xl text-xs">{{ book.status }}</div>
+      <img
+        [src]="getBookImage()"
+        alt="Book cover"
+        class="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+      />
+
+      <div
+        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out"
+      ></div>
+
+      <div
+        class="absolute right-2 top-2 border px-2 rounded-xl text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out bg-white text-gray-800"
+      >
+        {{ book.status }}
+      </div>
+
+      <div
+        class="absolute bottom-0 left-0 w-full p-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out"
+      >
+        <h3 class="font-semibold text-sm md:text-base">{{ book.title }}</h3>
+        <p class="text-xs md:text-sm font-mono">{{ book.author }}</p>
       </div>
     </div>
 
     @if (isModalOpen) {
-      <div
-        class="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50"
-        (click)="closeModal()"
-        role="button"
-        tabindex="0"
-      >
-        <div
-          class="bg-white p-6 rounded-lg max-w-sm w-full relative border border-gray-300"
-          (click)="$event.stopPropagation()"
-          role="button"
-          tabindex="0"
-        >
-          <h2 class="text-primary font-semibold text-lg">{{ book.title }}</h2>
-          <p class="text-xs font-semibold text-gray-500">In progress...</p>
-          <div class="flex justify-end">
-            <button class="mt-4 px-4 py-2 text-red-500 bg-white rounded" (click)="closeModal()">
-              <lucide-icon name="x"></lucide-icon>
-            </button>
-          </div>
-        </div>
-      </div>
+      <app-book-modal [book]="book" (closeModal)="closeModal()"></app-book-modal>
     }
   `,
 })
@@ -60,5 +54,17 @@ export class BookCardComponent {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  // 4 le nombre d'image dispo
+  imageId = Math.floor(Math.random() * 4) + 1;
+
+  getBookImage(): string {
+    return `/books/${this.imageId}.jpg`;
+  }
+
+  getBook() {
+    // faire une demande d'emprunt à l'ownerId si reel api (websocket)
+    // dans notre cas, emprunter directement avec une date de fin d'emprunt indiqué
   }
 }

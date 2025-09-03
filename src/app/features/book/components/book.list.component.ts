@@ -1,20 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-
+import { BookCardComponent } from './book.card.component';
 import { Book } from '../models/book.model';
 import { BookService } from '../services/book.service';
-
-import { BookCardComponent } from './book.card.component';
 
 @Component({
   selector: 'app-book-list',
   imports: [CommonModule, BookCardComponent],
   standalone: true,
   template: `
-    <h2 class="text-primary font-semibold text-xl">Book List</h2>
+    <h2 class="text-primary font-semibold text-xl">
+      Tout les livres ({{ booksToDisplay.length }})
+    </h2>
+    <label class="inline-flex items-center gap-2 mt-2">
+      <input type="checkbox" (change)="showAvailableOnly = $event.target.checked" />
+      Afficher seulement les livres disponibles
+    </label>
     <div class="flex justify-center mt-5">
       <div class="flex flex-wrap gap-4">
-        @for (book of bookService.getAllBooks(); track trackByBookId(book)) {
+        @for (book of booksToDisplay; track trackByBookId(book)) {
           <app-book-card [book]="book"></app-book-card>
         }
       </div>
@@ -23,6 +27,13 @@ import { BookCardComponent } from './book.card.component';
 })
 export class BookListComponent {
   bookService = inject(BookService);
+  showAvailableOnly = false;
+
+  get booksToDisplay() {
+    return this.showAvailableOnly
+      ? this.bookService.getBooksAvailable()
+      : this.bookService.getAllBooks();
+  }
 
   trackByBookId(book: Book): number {
     return book.id;

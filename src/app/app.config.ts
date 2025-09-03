@@ -5,7 +5,7 @@ import {
   provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { LucideAngularModule, X } from 'lucide-angular';
+import { LucideAngularModule, ShoppingBag, X } from 'lucide-angular';
 
 import { routes } from './app.routes';
 
@@ -14,6 +14,6 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    importProvidersFrom(LucideAngularModule.pick({ X })),
+    importProvidersFrom(LucideAngularModule.pick({ X, ShoppingBag })),
   ],
 };
