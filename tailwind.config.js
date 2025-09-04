@@ -1,3 +1,5 @@
+const PrimeUI = require('tailwindcss-primeui');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -5,8 +7,13 @@ module.exports = {
   ],
   theme: {
     extend: {
-      colors: { primary: "#6EACDA", secondary: "#FFB6C1" }
+      colors: {
+        primary: "#1E40AF",
+        secondary: "#FFB6C1"
+      }
     },
   },
-  plugins: [],
+  plugins: [
+    PrimeUI
+  ],
 }

@@ -30,9 +30,11 @@ import { Book } from '../models/book.model';
           <p>{{ book.description }}</p>
         </div>
         <div class="mt-4 flex justify-end gap-2">
-          <button class="bg-white rounded" (click)="getBook()">
-            <lucide-icon size="18" name="shopping-bag"></lucide-icon>
-          </button>
+          @if (book.available) {
+            <button class="bg-white rounded" (click)="getBook()">
+              <lucide-icon size="18" name="shopping-bag"></lucide-icon>
+            </button>
+          }
           <button class="text-red-500 bg-white rounded" (click)="close()">
             <lucide-icon size="18" name="x"></lucide-icon>
           </button>
