@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterLink, LucideAngularModule, ButtonModule],
+  imports: [RouterLink, ButtonModule],
   template: `
     <header class="p-4">
       <div class="container mx-auto flex justify-between items-center">

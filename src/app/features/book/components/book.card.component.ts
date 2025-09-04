@@ -1,13 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
 import { BookModalComponent } from './book.modal.component';
 import { Book } from '../models/book.model';
 
 @Component({
   selector: 'app-book-card',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, BookModalComponent],
+  imports: [CommonModule, DialogModule, ButtonModule, BookModalComponent],
   template: `
     <div
       class="relative w-full h-40 md:h-80 mb-2 overflow-hidden rounded-lg group"
@@ -39,9 +40,11 @@ import { Book } from '../models/book.model';
       </div>
     </div>
 
-    @if (isModalOpen) {
-      <app-book-modal [book]="book" (closeModal)="closeModal()"></app-book-modal>
-    }
+    <app-book-modal
+      [book]="book"
+      [visible]="isModalOpen"
+      (visibleChange)="closeModal()"
+    ></app-book-modal>
   `,
 })
 export class BookCardComponent {
