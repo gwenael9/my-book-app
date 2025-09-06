@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MenuItem } from 'primeng/api';
+import { PrimeIcons } from 'primeng/api';
+import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { AuthModalComponent } from '@/features/auth/components/auth.modal.component';
@@ -9,32 +11,33 @@ import { AuthService } from '@/features/auth/services/auth.service';
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, ButtonModule, AuthModalComponent, MenuModule],
+  imports: [RouterLink, ButtonModule, AuthModalComponent, MenuModule, AvatarModule],
   template: `
     <header class="p-4">
-      <div class="container mx-auto flex justify-between items-center">
+      <div class="mx-auto flex justify-between items-center">
         <h2 class="text-xl font-bold">
           <a routerLink="/home">Home</a>
         </h2>
-        <div class="flex space-x-2">
+        <div class="flex gap-2">
           <p-button
             routerLink="/books"
             icon="pi pi-book"
             styleClass="p-button-rounded p-button-outlined"
+            size="large"
           ></p-button>
           @if (currentUser()) {
-            <p-menu #menu [model]="items" [popup]="true"></p-menu>
-            <p-button
-              (click)="menu.toggle($event)"
-              styleClass="p-button-rounded"
-              icon="pi pi-user"
-            />
+            <div>
+              <p-menu class="text-sm" #menu [model]="items" [popup]="true"></p-menu>
+              <button (click)="menu.toggle($event)">
+                <p-avatar
+                  image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                  shape="circle"
+                  size="large"
+                />
+              </button>
+            </div>
           } @else {
-            <p-button
-              (click)="openModal()"
-              icon="pi pi-user"
-              styleClass="p-button-rounded p-button-outlined"
-            />
+            <p-button (click)="openModal()" icon="pi pi-user" rounded outlined size="large" />
             <app-auth-modal
               [visible]="isModalOpen"
               (visibleChange)="isModalOpen = $event"
@@ -47,18 +50,22 @@ import { AuthService } from '@/features/auth/services/auth.service';
 })
 export class HeaderComponent {
   private authService = inject(AuthService);
+  private router = inject(Router);
+
   isModalOpen = false;
 
   currentUser = this.authService.currentUser$;
 
   items: MenuItem[] = [
     {
+      label: 'Ajouter un livre',
+      icon: PrimeIcons.PLUS,
+      routerLink: '/books/add',
+    },
+    {
       label: 'Déconnexion',
-      icon: 'pi pi-sign-out',
-      command: () => {
-        this.closeModal();
-        this.authService.logout();
-      },
+      icon: PrimeIcons.SIGN_OUT,
+      command: () => this.logout(),
     },
   ];
 
@@ -72,5 +79,11 @@ export class HeaderComponent {
 
   closeModal() {
     this.isModalOpen = false;
+  }
+
+  logout() {
+    this.closeModal();
+    this.router.navigate(['/']);
+    this.authService.logout();
   }
 }

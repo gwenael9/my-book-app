@@ -94,7 +94,7 @@ export class AuthService {
   logout(): void {
     this.messageService.add({
       summary: 'Déconnexion confirmée',
-      detail: `A la prochaine ${this.currentUser.name} !`,
+      detail: `À la prochaine ${this.currentUser()?.name} !`,
       life: 3000,
     });
 

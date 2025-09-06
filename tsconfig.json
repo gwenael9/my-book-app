@@ -18,6 +18,7 @@
     "paths": {
       "@/features/*": ["app/features/*"],
       "@/shared/*": ["app/shared/*"],
+      "@/guards/*": ["app/core/guards/*"],
       "@/app/*": ["app/*"]
     }
   },

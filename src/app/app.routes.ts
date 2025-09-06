@@ -14,8 +14,4 @@ export const routes: Routes = [
     path: 'books',
     loadChildren: () => import('./features/book/book.routes').then((m) => m.BOOK_ROUTES),
   },
-  {
-    path: 'auth',
-    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
-  },
 ];
