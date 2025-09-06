@@ -1,0 +1,156 @@
+import { inject, Injectable, signal } from '@angular/core';
+import { MessageService } from 'primeng/api';
+import { delay, Observable, of, throwError } from 'rxjs';
+import { mockUsers } from '@/app/mock-data';
+import { LoginRequest, RegisterRequest, User } from '../models/user.model';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class AuthService {
+  private defaultUsers: User[] = mockUsers;
+
+  private messageService = inject(MessageService);
+
+  private currentUser = signal<User | null>(null);
+  public currentUser$ = this.currentUser.asReadonly();
+
+  private defaultPasswords: Record<string, string> = {
+    'john@mail.com': 'password',
+    'admin@mail.com': 'password',
+  };
+
+  private users: User[] = [];
+  private passwords: Record<string, string> = {};
+
+  constructor() {
+    this.loadUsersFromLocalStorage();
+    // Vérifier s'il y a un utilisateur en session
+    const token = localStorage.getItem('token');
+    if (token) {
+      // this.currentUser.set(JSON.parse(token));
+      const user = this.decodeToken(token);
+      this.currentUser.set(user);
+    }
+  }
+
+  login(credentials: LoginRequest): Observable<User> {
+    const user = this.users.find((u) => u.email === credentials.email);
+    const password = this.passwords[credentials.email];
+
+    if (user && password === credentials.password) {
+      const token = this.generateMockJwt(user);
+      localStorage.setItem('token', token);
+      this.currentUser.set(user);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Connexion réussie',
+        detail: `Bienvenue ${user.name} !`,
+        life: 3000,
+      });
+
+      // Simuler un délai réseau
+      return of(user).pipe(delay(500));
+    } else {
+      return throwError(() => new Error('Email ou mot de passe incorrect'));
+    }
+  }
+
+  register(userData: RegisterRequest): Observable<User> {
+    // Vérifier si l'email existe déjà
+    const existingUser = this.users.find((u) => u.email === userData.email);
+    if (existingUser) {
+      return throwError(() => new Error('Cet email est déjà utilisé'));
+    }
+
+    // Créer un nouvel utilisateur
+    const newUser: User = {
+      id: this.users.length + 1,
+      name: userData.name,
+      email: userData.email,
+      role: 'user',
+      password: '',
+      createdAt: new Date(),
+    };
+
+    // Ajouter aux mock data
+    this.users.push(newUser);
+    this.passwords[userData.email] = userData.password;
+
+    this.saveUserToLocalStorage();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Compte créé avec succès',
+      detail: `Bienvenue ${newUser.name} !`,
+      life: 3000,
+    });
+
+    // Simuler un délai réseau
+    return of(newUser).pipe(delay(500));
+  }
+
+  logout(): void {
+    this.messageService.add({
+      summary: 'Déconnexion confirmée',
+      detail: `A la prochaine ${this.currentUser.name} !`,
+      life: 3000,
+    });
+
+    this.currentUser.set(null);
+    localStorage.removeItem('token');
+  }
+
+  private loadUsersFromLocalStorage(): void {
+    const allUsers = localStorage.getItem('allUsers');
+    const usersPassword = localStorage.getItem('usersPassword');
+
+    if (allUsers && usersPassword) {
+      this.users = JSON.parse(allUsers);
+      this.passwords = JSON.parse(usersPassword);
+    } else {
+      this.users = [...this.defaultUsers];
+      this.passwords = { ...this.defaultPasswords };
+    }
+  }
+
+  // Méthode pour simuler la génération d'un JWT (payload encodé en base64)
+  private generateMockJwt(user: User): string {
+    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+    const payload = btoa(
+      JSON.stringify({ id: user.id, email: user.email, name: user.name, role: user.role }),
+    );
+    const signature = btoa('mock-signature');
+    return `${header}.${payload}.${signature}`;
+  }
+
+  // Méthode pour décoder le token JWT simulé
+  private decodeToken(token: string): User | null {
+    try {
+      const payload = token.split('.')[1];
+      const decoded = JSON.parse(atob(payload));
+      return {
+        id: decoded.id,
+        name: decoded.name,
+        email: decoded.email,
+        role: decoded.role,
+        password: '',
+        createdAt: new Date(),
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private saveUserToLocalStorage(): void {
+    localStorage.setItem('allUsers', JSON.stringify(this.users));
+    localStorage.setItem('usersPassword', JSON.stringify(this.passwords));
+  }
+
+  // private clearUserFromLocalStorage(): void {
+  //   localStorage.removeItem('allUsers');
+  //   localStorage.removeItem('usersPassword');
+  //   this.loadUsersFromLocalStorage();
+  // }
+}

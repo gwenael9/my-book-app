@@ -1,5 +1,5 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { mockBooks } from '@/app/mock-data/book';
+import { mockBooks } from '@/app/mock-data';
 import { Book } from '../models/book.model';
 
 @Injectable({

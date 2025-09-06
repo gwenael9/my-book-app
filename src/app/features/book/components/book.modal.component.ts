@@ -8,7 +8,12 @@ import { Book } from '../models/book.model';
   standalone: true,
   imports: [DialogModule, ButtonModule],
   template: `
-    <p-dialog [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }">
+    <p-dialog
+      [modal]="true"
+      [(visible)]="visible"
+      (visibleChange)="onVisibleChange($event)"
+      [style]="{ width: '25rem' }"
+    >
       <ng-template pTemplate="header">
         <h2 class="text-primary font-semibold text-lg mb-2">
           {{ book.title }}
@@ -36,5 +41,10 @@ export class BookModalComponent {
   close() {
     this.visible = false;
     this.visibleChange.emit(this.visible);
+  }
+
+  onVisibleChange(value: boolean) {
+    this.visible = value;
+    this.visibleChange.emit(value);
   }
 }
