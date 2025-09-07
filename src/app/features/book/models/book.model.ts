@@ -14,3 +14,9 @@ export interface Book {
   userId?: number;
   available: boolean;
 }
+
+export interface CreateBook {
+  title: string;
+  author: string;
+  description?: string;
+}

@@ -20,6 +20,8 @@ import { BookService } from '../services/book.service';
       <div class="flex flex-wrap gap-4">
         @for (book of booksToDisplay; track trackByBookId(book)) {
           <app-book-card [book]="book"></app-book-card>
+          <app-book-card [book]="book"></app-book-card>
+          <app-book-card [book]="book"></app-book-card>
         }
       </div>
     </div>
