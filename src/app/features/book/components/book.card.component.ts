@@ -11,7 +11,7 @@ import { Book } from '../models/book.model';
   imports: [CommonModule, DialogModule, ButtonModule, BookModalComponent],
   template: `
     <div
-      class="relative w-full h-40 md:h-80 mb-2 overflow-hidden rounded-lg group"
+      class="relative w-full h-80 mb-2 overflow-hidden rounded-lg group"
       role="button"
       tabindex="0"
       (click)="openModal()"

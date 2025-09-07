@@ -9,7 +9,7 @@ import { HeaderComponent } from '@/shared/components/header/header.component';
   imports: [RouterOutlet, HeaderComponent, ToastModule],
   template: `
     <app-header></app-header>
-    <main class="container mx-auto p-4">
+    <main class="px-8 py-4">
       <router-outlet></router-outlet>
       <p-toast position="bottom-right"></p-toast>
     </main>

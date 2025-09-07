@@ -13,11 +13,9 @@ import { AuthService } from '@/features/auth/services/auth.service';
   standalone: true,
   imports: [RouterLink, ButtonModule, AuthModalComponent, MenuModule, AvatarModule],
   template: `
-    <header class="p-4">
+    <header class="px-8 py-4">
       <div class="mx-auto flex justify-between items-center">
-        <h2 class="text-xl font-bold">
-          <a routerLink="/home">Home</a>
-        </h2>
+        <p-button routerLink="/" icon="pi pi-home" rounded outlined size="large"></p-button>
         <div class="flex gap-2">
           <p-button
             routerLink="/books"
@@ -58,9 +56,22 @@ export class HeaderComponent {
 
   items: MenuItem[] = [
     {
+      label: 'Mes publications',
+      icon: PrimeIcons.BOOK,
+      routerLink: '/books/publication',
+    },
+    {
+      label: 'Mes emprunts',
+      icon: PrimeIcons.SHOPPING_CART,
+      routerLink: '/books/loan',
+    },
+    {
       label: 'Ajouter un livre',
       icon: PrimeIcons.PLUS,
       routerLink: '/books/add',
+    },
+    {
+      separator: true,
     },
     {
       label: 'Déconnexion',

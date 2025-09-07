@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { BookCardComponent } from './book.card.component';
+import { BookCardComponent } from '../components/book.card.component';
 import { Book } from '../models/book.model';
 import { BookService } from '../services/book.service';
 

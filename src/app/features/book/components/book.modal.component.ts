@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
+import { AuthService } from '../../auth/services/auth.service';
 import { Book } from '../models/book.model';
 
 @Component({
@@ -25,7 +26,7 @@ import { Book } from '../models/book.model';
           Disponible à partir du {{ book.availableAt.toLocaleDateString() }}
         </p>
       }
-      @if (book.available) {
+      @if (book.available && book.ownerId !== currentUser()?.id) {
         <div class="flex justify-end gap-2">
           <p-button label="Emprunter" (click)="close()" />
         </div>
@@ -37,6 +38,10 @@ export class BookModalComponent {
   @Input() book!: Book;
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
+
+  private authService = inject(AuthService);
+
+  currentUser = this.authService.currentUser$;
 
   close() {
     this.visible = false;
