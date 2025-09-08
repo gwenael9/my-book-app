@@ -30,6 +30,13 @@ export class BookService {
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
+  getBookLoanByUser(userId?: number): Book[] {
+    this.delay(200);
+    return this.books
+      .filter((book) => book.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
   addBook(book: CreateBook): Observable<Book> {
     const currentUser = this.authService.currentUser$;
     const userId = currentUser()?.id;

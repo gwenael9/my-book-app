@@ -26,6 +26,7 @@ export const mockBooks: Book[] = [
     availableAt: new Date('2025-09-24T00:00:00Z'),
     available: false,
     image: 2,
+    userId: 3,
   },
   {
     id: 3,
