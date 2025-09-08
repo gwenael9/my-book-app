@@ -3,7 +3,7 @@ export interface Book {
   title: string;
   author: string;
   description?: string;
-  status: 'free' | 'checked out' | 'reserved';
+  status: 'free' | 'unavailable' | 'reserved';
   // l'utilisateur qui prête le livre
   ownerId: number;
   createdAt: Date;

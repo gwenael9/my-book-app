@@ -1,3 +1,4 @@
+import { StatusPipe } from '@/pipes/status.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, Input, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +18,7 @@ import { BookModalComponent } from './book.modal.component';
     BookModalComponent,
     SkeletonModule,
     TagModule,
+    StatusPipe,
   ],
   template: `
     <div
@@ -42,8 +44,8 @@ import { BookModalComponent } from './book.modal.component';
 
       <p-tag
         class="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out"
-        [value]="book.status"
-        severity="success"
+        [value]="(book.status | status).label"
+        [severity]="(book.status | status).severity"
         [rounded]="true"
       />
 

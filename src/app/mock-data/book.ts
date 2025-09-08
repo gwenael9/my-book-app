@@ -18,7 +18,7 @@ export const mockBooks: Book[] = [
     id: 2,
     title: 'To Kill a Mockingbird',
     author: 'Harper Lee',
-    status: 'checked out',
+    status: 'unavailable',
     description: 'description du livre',
     ownerId: 1,
     createdAt: new Date(),

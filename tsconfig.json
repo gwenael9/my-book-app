@@ -19,6 +19,7 @@
       "@/features/*": ["app/features/*"],
       "@/shared/*": ["app/shared/*"],
       "@/guards/*": ["app/core/guards/*"],
+      "@/pipes/*": ["app/shared/pipes/*"],
       "@/app/*": ["app/*"]
     }
   },
