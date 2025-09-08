@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
-import { BookModalComponent } from './book.modal.component';
 import { Book } from '../models/book.model';
+import { BookModalComponent } from './book.modal.component';
 
 @Component({
   selector: 'app-book-card',
@@ -17,7 +17,7 @@ import { Book } from '../models/book.model';
       (click)="openModal()"
     >
       <img
-        [src]="getBookImage()"
+        src="/books/{{ book.image }}.jpg"
         alt="Book cover"
         class="w-full h-full object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
       />
@@ -57,13 +57,6 @@ export class BookCardComponent {
 
   closeModal() {
     this.isModalOpen = false;
-  }
-
-  // 4 le nombre d'image dispo
-  imageId = Math.floor(Math.random() * 4) + 1;
-
-  getBookImage(): string {
-    return `/books/${this.imageId}.jpg`;
   }
 
   getBook() {

@@ -3,8 +3,11 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -15,8 +18,11 @@ import { AuthService } from '../services/auth.service';
     ButtonModule,
     InputTextModule,
     FormsModule,
-    FloatLabelModule,
     MessageModule,
+    IconField,
+    InputIcon,
+    PasswordModule,
+    FloatLabelModule,
   ],
   template: `
     <p-dialog
@@ -40,63 +46,86 @@ import { AuthService } from '../services/auth.service';
         </div>
       }
 
-      <form #authForm="ngForm" (ngSubmit)="onSubmit(authForm)">
-        <div class="flex flex-col gap-4 mb-8">
+      <form #authForm="ngForm" class="mt-1" (ngSubmit)="onSubmit(authForm)">
+        <div class="flex flex-col gap-6 mb-8">
           <div class="flex flex-col gap-1">
-            <label class="text-sm" for="email">Email</label>
-            <input
-              pInputText
-              id="email"
-              name="email"
-              [(ngModel)]="email"
-              required
-              email
-              autocomplete="off"
-              placeholder="mail@example.com"
-            />
+            <p-float-label variant="on">
+              <p-iconfield>
+                <p-inputicon class="pi pi-envelope" />
+                <input
+                  pInputText
+                  id="email"
+                  name="email"
+                  [(ngModel)]="email"
+                  required
+                  email
+                  autocomplete="off"
+                  class="w-full"
+                />
+                <label for="on_label">Email</label>
+              </p-iconfield>
+            </p-float-label>
           </div>
 
           <div class="flex flex-col gap-1" [class.hidden]="isLogin()">
-            <label class="text-sm" for="username">Nom complet</label>
-            <input
-              pInputText
-              id="username"
-              name="username"
-              [(ngModel)]="username"
-              [required]="!isLogin()"
-              username
-              autocomplete="off"
-              placeholder="John Doe"
-            />
+            <p-float-label variant="on">
+              <p-iconfield>
+                <p-inputicon class="pi pi-user" />
+                <input
+                  pInputText
+                  id="username"
+                  name="username"
+                  [(ngModel)]="username"
+                  [required]="!isLogin()"
+                  username
+                  autocomplete="off"
+                  class="w-full"
+                />
+                <label for="on_label">Nom d'utilisateur</label>
+              </p-iconfield>
+            </p-float-label>
           </div>
 
           <div class="flex flex-col gap-1">
-            <label class="text-sm" for="password">Mot de passe</label>
-            <input
-              type="password"
-              pInputText
-              id="password"
-              name="password"
-              [(ngModel)]="password"
-              required
-              minlength="6"
-              autocomplete="off"
-            />
+            <p-float-label variant="on">
+              <p-icon-field>
+                <p-inputIcon class="pi pi-key" />
+                <input
+                  type="password"
+                  pInputText
+                  id="password"
+                  name="password"
+                  [(ngModel)]="password"
+                  required
+                  minlength="6"
+                  autocomplete="off"
+                  class="w-full"
+                />
+                <label for="on_label">Mot de passe</label>
+              </p-icon-field>
+            </p-float-label>
           </div>
 
           <div class="flex flex-col gap-1" [class.hidden]="isLogin()">
-            <label class="text-sm" for="confirmPassword">Confirmez le mot de passe</label>
-            <input
-              type="password"
-              pInputText
-              id="confirmPassword"
-              name="confirmPassword"
-              [(ngModel)]="confirmPassword"
-              [required]="!isLogin()"
-              minlength="6"
-              autocomplete="off"
-            />
+            <p-float-label variant="on">
+              <p-icon-field>
+                <p-inputIcon class="pi pi-key" />
+                <input
+                  type="password"
+                  pInputText
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  [(ngModel)]="confirmPassword"
+                  [required]="!isLogin()"
+                  minlength="6"
+                  autocomplete="off"
+                  class="w-full"
+                />
+                <label for="on_label">Confirmez le mot de passe</label>
+              </p-icon-field>
+            </p-float-label>
           </div>
+
           <p class="text-sm italic">
             {{ isLogin() ? 'Pas de compte ?' : 'Déjà un compte ?' }}
             <span role="button" tabindex="0" (click)="swipeForm()" class="underline cursor-pointer">

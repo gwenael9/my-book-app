@@ -13,10 +13,12 @@ export interface Book {
   // l'utilisateur qui l'utilise
   userId?: number;
   available: boolean;
+  image: number;
 }
 
 export interface CreateBook {
   title: string;
   author: string;
   description?: string;
+  image: number;
 }

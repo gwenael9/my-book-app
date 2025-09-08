@@ -1,7 +1,7 @@
+import { mockUsers } from '@/app/mock-data';
 import { inject, Injectable, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { delay, Observable, of, throwError } from 'rxjs';
-import { mockUsers } from '@/app/mock-data';
 import { LoginRequest, RegisterRequest, User } from '../models/user.model';
 
 @Injectable({
@@ -147,10 +147,4 @@ export class AuthService {
     localStorage.setItem('allUsers', JSON.stringify(this.users));
     localStorage.setItem('usersPassword', JSON.stringify(this.passwords));
   }
-
-  // private clearUserFromLocalStorage(): void {
-  //   localStorage.removeItem('allUsers');
-  //   localStorage.removeItem('usersPassword');
-  //   this.loadUsersFromLocalStorage();
-  // }
 }
