@@ -17,7 +17,7 @@ import { BookService } from '../services/book.service';
       Afficher seulement les livres disponibles
     </label>
     <div class="flex justify-center mt-5">
-      <div class="flex flex-wrap gap-4">
+      <div class="flex flex-col flex-wrap sm:flex-row gap-8 sm:gap-4 overflow-hidden">
         @for (book of booksToDisplay; track trackByBookId(book)) {
           <app-book-card [book]="book"></app-book-card>
         }

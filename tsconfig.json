@@ -20,6 +20,9 @@
       "@/shared/*": ["app/shared/*"],
       "@/guards/*": ["app/core/guards/*"],
       "@/pipes/*": ["app/shared/pipes/*"],
+      "@/auth/*": ["app/features/auth/*"],
+      "@/book/*": ["app/features/book/*"],
+      "@/home/*": ["app/features/home/*"],
       "@/app/*": ["app/*"]
     }
   },

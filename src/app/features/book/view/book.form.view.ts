@@ -3,14 +3,23 @@ import { Component, inject, signal, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
+import { CarouselModule } from 'primeng/carousel';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
+import { Book } from '../models/book.model';
 import { BookService } from '../services/book.service';
 
 @Component({
   selector: 'app-form-book',
   standalone: true,
-  imports: [FormsModule, ButtonModule, InputTextModule, MessageModule, CommonModule],
+  imports: [
+    FormsModule,
+    ButtonModule,
+    InputTextModule,
+    MessageModule,
+    CommonModule,
+    CarouselModule,
+  ],
   template: `
     <h2 class="text-primary font-semibold text-xl mb-2">Ajouter un livre</h2>
     <div class="flex flex-col items-center w-full">
@@ -19,8 +28,8 @@ import { BookService } from '../services/book.service';
           <p-message size="small" severity="error">{{ errorMessage() }}</p-message>
         </div>
       }
-      <form class="w-full max-w-[450px]" #bookForm="ngForm" (ngSubmit)="onSubmit(bookForm)">
-        <div class="flex flex-col gap-4 mb-8">
+      <form class="w-full max-w-[1000px]" #bookForm="ngForm" (ngSubmit)="onSubmit(bookForm)">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <div class="flex flex-col gap-1">
             <label class="text-sm" for="title">Titre</label>
             <input
@@ -45,38 +54,48 @@ import { BookService } from '../services/book.service';
               placeholder="L'auteur"
             />
           </div>
+
           <div class="flex flex-col gap-1">
             <label class="text-sm" for="description">Description</label>
-            <input
-              pInputText
+            <textarea
               id="description"
               name="description"
               [(ngModel)]="description"
               autocomplete="off"
               placeholder="Ma description"
-            />
+              class="p-inputtext p-component resize-none min-h-[200px]"
+            ></textarea>
           </div>
-          <div class="flex flex-col gap-2">
-            <label class="text-sm font-medium text-gray-700" for="image">Image</label>
-            <div class="flex gap-2 flex-wrap">
-              @for (i of images; track i.toString()) {
-                <button
-                  type="button"
-                  (click)="selectImage(i)"
-                  class="relative border rounded-xl cursor-pointer flex justify-center items-center overflow-hidden transition ring-2 focus:outline-none bg-gray-200"
-                  [ngClass]="
-                    image === i
-                      ? 'ring-primary border-primary'
-                      : 'ring-transparent border-gray-300 '
-                  "
-                >
-                  <img
-                    class="w-[104px] object-cover"
-                    src="/books/{{ i }}.jpg"
-                    alt="Image {{ i }}"
-                  />
-                </button>
-              }
+          <div class="flex flex-col gap-2 h-full">
+            <label class="text-sm" for="image">Image</label>
+            <div class="flex justify-center">
+              <p-carousel
+                [value]="images"
+                [numVisible]="2"
+                [numScroll]="1"
+                [circular]="true"
+                [showIndicators]="false"
+                [showNavigators]="true"
+                class="max-w-[600px]"
+                [responsiveOptions]="responsiveOptions"
+              >
+                <ng-template pTemplate="item" let-i>
+                  <div class="flex justify-center">
+                    <button type="button" class="relative" (click)="selectImage(i)">
+                      <img
+                        class="object-cover h-[200px] border rounded-xl overflow-hidden"
+                        src="/books/{{ i }}.jpg"
+                        alt="Image {{ i }}"
+                      />
+                      @if (image === i) {
+                        <i
+                          class="pi pi-check absolute right-2 top-2 text-green-500 rounded-full bg-white p-1"
+                        ></i>
+                      }
+                    </button>
+                  </div>
+                </ng-template>
+              </p-carousel>
             </div>
           </div>
         </div>
@@ -130,18 +149,31 @@ export class BookFormComponent {
         image: this.image,
       })
       .subscribe({
-        next: () => this.handleSuccess(),
+        next: (book) => this.handleSuccess(book),
         error: (err: Error) => this.handleError(err),
       });
   }
 
-  private handleSuccess() {
+  private handleSuccess(book: Book) {
     this.loading.set(false);
-    this.router.navigate(['/books/publication']);
+    this.router.navigate([`/books/${book.id}`]);
   }
 
   private handleError(err: Error) {
     this.errorMessage.set(err?.message || 'Erreur lors de la requête');
     this.loading.set(false);
   }
+
+  responsiveOptions = [
+    {
+      breakpoint: '768px', // max-width 768px (mobile)
+      numVisible: 1,
+      numScroll: 1,
+    },
+    {
+      breakpoint: '1200px', // max-width 1200px (tablette)
+      numVisible: 2,
+      numScroll: 1,
+    },
+  ];
 }

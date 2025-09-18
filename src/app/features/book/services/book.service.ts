@@ -75,6 +75,37 @@ export class BookService {
     return of(newBook).pipe(delay(500));
   }
 
+  saveBook(bookId: number, newDate: Date): Observable<Book> {
+    const currentUser = this.authService.currentUser$;
+    const userId = currentUser()?.id;
+    if (!userId) return throwError(() => new Error("Vous n'êtes pas connecté."));
+
+    const bookIndex = this.books.findIndex((b) => b.id === bookId);
+    if (bookIndex === -1) return throwError(() => new Error("Ce livre n'est pas disponible."));
+
+    // ajouter une verif sur la date
+
+    const updatedBook = { ...this.books[bookIndex], userId, availableAt: newDate };
+    this.books[bookIndex] = updatedBook;
+
+    this.saveBookToLocalStorage();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Livre emprunté avec succès',
+      detail: `Merci ! Le livre ${updatedBook.title} a bien été emprunté !`,
+      life: 3000,
+    });
+
+    return of(updatedBook).pipe(delay(100));
+  }
+
+  getBookById(id: number): Book {
+    const book = this.books.find((b) => b.id === id);
+    if (!book) throw new Error('Livre introuvable.');
+    return book;
+  }
+
   // Simuler un délai réseau
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
