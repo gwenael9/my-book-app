@@ -48,8 +48,10 @@ export class BookService {
 
     if (existingBook) return throwError(() => new Error('Vous avez déjà posté ce livre.'));
 
+    const maxId = this.books.reduce((max, b) => (b.id > max ? b.id : max), 0);
+
     const newBook: Book = {
-      id: this.books.length + 1,
+      id: maxId + 1,
       title: book.title,
       author: book.author,
       status: 'free',

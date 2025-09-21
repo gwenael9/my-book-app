@@ -1,12 +1,11 @@
+import { AuthModalComponent } from '@/features/auth/components/auth.modal.component';
+import { AuthService } from '@/features/auth/services/auth.service';
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { MenuItem } from 'primeng/api';
-import { PrimeIcons } from 'primeng/api';
+import { MenuItem, PrimeIcons } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
-import { AuthModalComponent } from '@/features/auth/components/auth.modal.component';
-import { AuthService } from '@/features/auth/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -28,7 +27,7 @@ import { AuthService } from '@/features/auth/services/auth.service';
               <p-menu class="text-sm" #menu [model]="items" [popup]="true"></p-menu>
               <button (click)="menu.toggle($event)">
                 <p-avatar
-                  image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+                  image="https://primefaces.org/cdn/primeng/images/demo/avatar/xuxuefeng.png"
                   shape="circle"
                   size="large"
                 />
@@ -70,6 +69,15 @@ export class HeaderComponent {
       icon: PrimeIcons.PLUS,
       routerLink: '/books/add',
     },
+    ...(this.currentUser()?.role === 'admin'
+      ? [
+          {
+            label: 'Administration',
+            icon: PrimeIcons.COG,
+            routerLink: '/admin',
+          },
+        ]
+      : []),
     {
       separator: true,
     },

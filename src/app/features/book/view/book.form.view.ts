@@ -133,13 +133,11 @@ export class BookFormComponent implements OnInit {
       try {
         book = this.bookService.getBookById(id);
       } catch {
-        // livre introuvable → redirection
         this.router.navigate(['/books']);
         return;
       }
 
       if (book.ownerId !== this.authService.currentUser$()?.id) {
-        // non propriétaire → redirection
         this.router.navigate(['/books']);
         return;
       }

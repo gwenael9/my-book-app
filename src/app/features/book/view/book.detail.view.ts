@@ -92,7 +92,6 @@ import { BookService } from '../services/book.service';
       <p class="text-red-500 text-center">Livre introuvable.</p>
     }
 
-    <!-- modal emprunt -->
     <p-dialog
       header="Choisir la date de fin"
       [(visible)]="showModal"
@@ -161,9 +160,6 @@ export class BookDetailComponent {
   }
 
   deleteBook() {
-    const user = this.currentUser();
-    if (!user) return;
-
     this.bookService.deleteBook(this.book.id).subscribe({
       next: () => {
         this.router.navigate(['/books']);

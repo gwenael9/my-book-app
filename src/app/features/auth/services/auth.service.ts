@@ -1,5 +1,5 @@
 import { mockUsers } from '@/app/mock-data';
-import { inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { delay, Observable, of, throwError } from 'rxjs';
 import { LoginRequest, RegisterRequest, User } from '../models/user.model';
@@ -22,6 +22,8 @@ export class AuthService {
 
   private users: User[] = [];
   private passwords: Record<string, string> = {};
+
+  public getAllUsers = computed(() => this.users);
 
   constructor() {
     this.loadUsersFromLocalStorage();
@@ -91,15 +93,59 @@ export class AuthService {
     return of(newUser).pipe(delay(500));
   }
 
-  logout(): void {
-    this.messageService.add({
-      summary: 'Déconnexion confirmée',
-      detail: `À la prochaine ${this.currentUser()?.name} !`,
-      life: 3000,
-    });
+  logout(withoutToast = false): void {
+    if (!withoutToast) {
+      this.messageService.add({
+        summary: 'Déconnexion confirmée',
+        detail: `À la prochaine ${this.currentUser()?.name} !`,
+        life: 3000,
+      });
+    }
 
     this.currentUser.set(null);
     localStorage.removeItem('token');
+  }
+
+  getUserNameById(userId: number): string {
+    const user = this.users.find((u) => u.id === userId);
+    if (!user) return 'Utilisateur inconnu';
+    return user.name;
+  }
+
+  deleteUser(userId: number): Observable<void> {
+    if (!this.currentUser) return throwError(() => new Error("Vous n'êtes pas connecté."));
+
+    const isMyAccount = this.currentUser()?.id === userId;
+
+    if (this.currentUser()?.role === 'user' && !isMyAccount)
+      return throwError(() => new Error("Vous n'êtes pas autorisé à supprimer cet utilisateur."));
+
+    const userIndex = this.users.findIndex((b) => b.id === userId);
+    if (userIndex === -1) return throwError(() => new Error('Utilisateur introuvable.'));
+
+    const user = this.users.find((u) => u.id === userId);
+
+    if (isMyAccount) {
+      this.logout(true);
+    }
+
+    /**
+     * TODO:Supprimer également tout les livres de l'user
+     */
+
+    this.users.splice(userIndex, 1);
+    this.saveUserToLocalStorage();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Utilisateur supprimé',
+      detail: isMyAccount
+        ? 'Votre compte a bien été supprimé, à une prochaine fois !'
+        : `Le compte de ${user?.name} a bien été supprimé !`,
+      life: 3000,
+    });
+
+    return of(void 0).pipe(delay(100));
   }
 
   private loadUsersFromLocalStorage(): void {
