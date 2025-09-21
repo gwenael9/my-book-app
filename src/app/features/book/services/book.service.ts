@@ -75,7 +75,7 @@ export class BookService {
     return of(newBook).pipe(delay(500));
   }
 
-  saveBook(bookId: number, newDate: Date): Observable<Book> {
+  loanBook(bookId: number, newDate: Date): Observable<Book> {
     const currentUser = this.authService.currentUser$;
     const userId = currentUser()?.id;
     if (!userId) return throwError(() => new Error("Vous n'êtes pas connecté."));
@@ -85,7 +85,13 @@ export class BookService {
 
     // ajouter une verif sur la date
 
-    const updatedBook = { ...this.books[bookIndex], userId, availableAt: newDate };
+    const updatedBook: Book = {
+      ...this.books[bookIndex],
+      userId,
+      availableAt: newDate,
+      available: false,
+      status: 'unavailable',
+    };
     this.books[bookIndex] = updatedBook;
 
     this.saveBookToLocalStorage();
@@ -100,13 +106,46 @@ export class BookService {
     return of(updatedBook).pipe(delay(100));
   }
 
+  returnBook(bookId: number): Observable<Book> {
+    const currentUser = this.authService.currentUser$;
+    const userId = currentUser()?.id;
+    if (!userId) return throwError(() => new Error("Vous n'êtes pas connecté."));
+
+    const bookIndex = this.books.findIndex((b) => b.id === bookId);
+    if (bookIndex === -1) return throwError(() => new Error('Livre introuvable.'));
+
+    const book = this.books[bookIndex];
+    if (book.userId !== userId) {
+      return throwError(() => new Error("Vous n'avez pas emprunté ce livre."));
+    }
+
+    const updatedBook: Book = {
+      ...book,
+      userId: undefined,
+      availableAt: new Date(),
+      available: true,
+      status: 'free',
+    };
+    this.books[bookIndex] = updatedBook;
+
+    this.saveBookToLocalStorage();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Emprunt terminé',
+      detail: `Le livre ${updatedBook.title} a été rendu.`,
+      life: 3000,
+    });
+
+    return of(updatedBook).pipe(delay(100));
+  }
+
   getBookById(id: number): Book {
     const book = this.books.find((b) => b.id === id);
     if (!book) throw new Error('Livre introuvable.');
     return book;
   }
 
-  // Simuler un délai réseau
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

@@ -2,16 +2,27 @@ import { AuthService } from '@/auth/services/auth.service';
 import { StatusPipe } from '@/shared/pipes/status.pipe';
 import { CommonModule, Location } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Button } from 'primeng/button';
+import { DatePickerModule } from 'primeng/datepicker';
+import { DialogModule } from 'primeng/dialog';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { BookService } from '../services/book.service';
 
 @Component({
   selector: 'app-book-details',
-  standalone: true,
-  imports: [CommonModule, Button, StatusPipe, TagModule, SkeletonModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    Button,
+    StatusPipe,
+    TagModule,
+    SkeletonModule,
+    DialogModule,
+    DatePickerModule,
+  ],
   template: `
     <div class="mb-4">
       <p-button
@@ -19,7 +30,7 @@ import { BookService } from '../services/book.service';
         icon="pi pi-arrow-left"
         styleClass="p-button-text"
         (click)="goBack()"
-      ></p-button>
+      />
     </div>
     @if (book) {
       <div class="mx-auto flex flex-col md:flex-row gap-4">
@@ -61,11 +72,13 @@ import { BookService } from '../services/book.service';
                 <p-button text severity="danger" icon="pi pi-trash" />
               }
               @if (book.userId === currentUser()?.id) {
-                <p-button severity="danger" variant="text">Terminer l'emprunt</p-button>
+                <p-button severity="danger" variant="text" (click)="endLoan()">
+                  Terminer l'emprunt
+                </p-button>
               }
               @if (book.available && book.ownerId !== currentUser()?.id) {
                 <div class="flex justify-end gap-2">
-                  <p-button label="Emprunter" />
+                  <p-button label="Emprunter" (click)="openModal()" />
                 </div>
               }
             </div>
@@ -78,23 +91,73 @@ import { BookService } from '../services/book.service';
     } @else {
       <p class="text-red-500 text-center">Livre introuvable.</p>
     }
+
+    <!-- modal emprunt -->
+    <p-dialog
+      header="Choisir la date de fin"
+      [(visible)]="showModal"
+      [modal]="true"
+      [closable]="true"
+      [style]="{ width: '350px' }"
+      (onHide)="closeModal()"
+    >
+      <div class="flex flex-col gap-4">
+        <p-datepicker
+          [(ngModel)]="selectedDate"
+          [minDate]="minDate"
+          readonlyInput="true"
+          appendTo="body"
+          showClear="true"
+          dateFormat="dd/mm/yy"
+        />
+        <div class="flex justify-end gap-2">
+          <p-button label="Confirmer" (click)="confirmLoan()" [disabled]="!selectedDate" />
+        </div>
+      </div>
+    </p-dialog>
   `,
 })
 export class BookDetailComponent {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private bookService = inject(BookService);
   private location = inject(Location);
+  private authService = inject(AuthService);
   imageLoaded = signal(false);
 
-  private authService = inject(AuthService);
-
   currentUser = this.authService.currentUser$;
-
   private id = Number(this.route.snapshot.paramMap.get('id'));
   book = this.bookService.getBookById(this.id);
 
+  showModal = signal(false);
+  selectedDate: Date | undefined = undefined;
+  minDate: Date = new Date();
+
   goBack() {
     this.location.back();
+  }
+
+  openModal() {
+    this.showModal.set(true);
+  }
+
+  closeModal() {
+    this.showModal.set(false);
+    this.selectedDate = undefined;
+  }
+
+  confirmLoan() {
+    if (this.selectedDate) {
+      this.bookService.loanBook(this.book.id, this.selectedDate).subscribe();
+      this.closeModal();
+      this.router.navigate(['/books/loan']);
+    }
+  }
+
+  endLoan() {
+    this.bookService.returnBook(this.book.id).subscribe((updatedBook) => {
+      this.book = updatedBook;
+    });
   }
 
   onImageLoad() {
