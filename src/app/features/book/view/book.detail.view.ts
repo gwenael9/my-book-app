@@ -68,8 +68,8 @@ import { BookService } from '../services/book.service';
           <div class="flex-grow ">
             <div class="text-end">
               @if (book.ownerId === currentUser()?.id) {
-                <p-button text icon="pi pi-pencil" />
-                <p-button text severity="danger" icon="pi pi-trash" />
+                <p-button text icon="pi pi-pencil" (click)="editBook()" />
+                <p-button text severity="danger" icon="pi pi-trash" (click)="deleteBook()" />
               }
               @if (book.userId === currentUser()?.id) {
                 <p-button severity="danger" variant="text" (click)="endLoan()">
@@ -158,6 +158,24 @@ export class BookDetailComponent {
     this.bookService.returnBook(this.book.id).subscribe((updatedBook) => {
       this.book = updatedBook;
     });
+  }
+
+  deleteBook() {
+    const user = this.currentUser();
+    if (!user) return;
+
+    this.bookService.deleteBook(this.book.id).subscribe({
+      next: () => {
+        this.router.navigate(['/books']);
+      },
+      error: (err) => {
+        console.error(err);
+      },
+    });
+  }
+
+  editBook() {
+    this.router.navigate([`/books/${this.book.id}/edit`]);
   }
 
   onImageLoad() {

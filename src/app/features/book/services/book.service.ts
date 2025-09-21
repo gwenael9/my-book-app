@@ -140,6 +140,64 @@ export class BookService {
     return of(updatedBook).pipe(delay(100));
   }
 
+  deleteBook(bookId: number): Observable<void> {
+    const currentUser = this.authService.currentUser$;
+    const user = currentUser();
+    if (!user) return throwError(() => new Error("Vous n'êtes pas connecté."));
+
+    const bookIndex = this.books.findIndex((b) => b.id === bookId);
+    if (bookIndex === -1) return throwError(() => new Error('Livre introuvable.'));
+
+    const book = this.books[bookIndex];
+    if (book.ownerId !== user.id && user.role === 'user') {
+      return throwError(() => new Error("Vous n'êtes pas autorisé à supprimer ce livre."));
+    }
+
+    this.books.splice(bookIndex, 1);
+    this.saveBookToLocalStorage();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Livre supprimé',
+      detail: `Le livre ${book.title} a été supprimé.`,
+      life: 3000,
+    });
+
+    return of(void 0).pipe(delay(100));
+  }
+
+  updateBook(bookId: number, updatedData: Partial<Book>): Observable<Book> {
+    const currentUser = this.authService.currentUser$;
+    const user = currentUser();
+    if (!user) return throwError(() => new Error("Vous n'êtes pas connecté."));
+
+    const bookIndex = this.books.findIndex((b) => b.id === bookId);
+    if (bookIndex === -1) return throwError(() => new Error('Livre introuvable.'));
+
+    const book = this.books[bookIndex];
+    if (book.ownerId !== user.id) {
+      return throwError(() => new Error("Vous n'êtes pas autorisé à modifier ce livre."));
+    }
+
+    const updatedBook: Book = {
+      ...book,
+      ...updatedData,
+      updatedAt: new Date(),
+    };
+
+    this.books[bookIndex] = updatedBook;
+    this.saveBookToLocalStorage();
+
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Livre modifié',
+      detail: `Le livre ${updatedBook.title} a été mis à jour.`,
+      life: 3000,
+    });
+
+    return of(updatedBook).pipe(delay(100));
+  }
+
   getBookById(id: number): Book {
     const book = this.books.find((b) => b.id === id);
     if (!book) throw new Error('Livre introuvable.');

@@ -1,7 +1,8 @@
+import { AuthService } from '@/auth/services/auth.service';
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal, ViewChild } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CarouselModule } from 'primeng/carousel';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,7 +22,9 @@ import { BookService } from '../services/book.service';
     CarouselModule,
   ],
   template: `
-    <h2 class="text-primary font-semibold text-xl mb-2">Ajouter un livre</h2>
+    <h2 class="text-primary font-semibold text-xl mb-2">
+      {{ isEditMode ? 'Modifier votre livre' : 'Ajouter un livre' }}
+    </h2>
     <div class="flex flex-col items-center w-full">
       @if (errorMessage()) {
         <div class="my-1">
@@ -103,8 +106,8 @@ import { BookService } from '../services/book.service';
         <div class="flex justify-end gap-2">
           <p-button
             type="submit"
-            severity="success"
-            label="Ajouter"
+            [severity]="isEditMode ? 'warn' : 'success'"
+            [label]="isEditMode ? 'Enregistrer' : 'Ajouter'"
             [loading]="loading()"
             [disabled]="bookForm.invalid"
           ></p-button>
@@ -113,25 +116,65 @@ import { BookService } from '../services/book.service';
     </div>
   `,
 })
-export class BookFormComponent {
+export class BookFormComponent implements OnInit {
   @ViewChild('bookForm') bookForm?: NgForm;
   loading = signal<boolean>(false);
-
-  private bookService = inject(BookService);
   errorMessage = signal<string | null>(null);
 
-  router = inject(Router);
+  private bookService = inject(BookService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private authService = inject(AuthService);
+
+  ngOnInit() {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if (id) {
+      let book: Book | undefined;
+      try {
+        book = this.bookService.getBookById(id);
+      } catch {
+        // livre introuvable → redirection
+        this.router.navigate(['/books']);
+        return;
+      }
+
+      if (book.ownerId !== this.authService.currentUser$()?.id) {
+        // non propriétaire → redirection
+        this.router.navigate(['/books']);
+        return;
+      }
+
+      this.setBookForEdit(book);
+    }
+  }
 
   title = '';
   author = '';
   description = '';
   image = 1;
-
   images = [1, 2, 3, 4];
+
+  isEditMode = false;
+  bookId?: number;
+
+  setBookForEdit(book: Book) {
+    this.isEditMode = true;
+    this.bookId = book.id;
+    this.title = book.title;
+    this.author = book.author;
+    this.description = book.description ?? '';
+    this.image = book.image;
+  }
 
   clearForm() {
     this.bookForm?.resetForm();
     this.errorMessage.set(null);
+    if (!this.isEditMode) {
+      this.title = '';
+      this.author = '';
+      this.description = '';
+      this.image = 1;
+    }
   }
 
   selectImage(i: number) {
@@ -141,17 +184,23 @@ export class BookFormComponent {
   onSubmit(form: NgForm) {
     if (!form.valid) return;
     this.loading.set(true);
-    this.bookService
-      .addBook({
-        title: this.title,
-        author: this.author,
-        description: this.description,
-        image: this.image,
-      })
-      .subscribe({
-        next: (book) => this.handleSuccess(book),
-        error: (err: Error) => this.handleError(err),
-      });
+
+    const bookData = {
+      title: this.title,
+      author: this.author,
+      description: this.description,
+      image: this.image,
+    };
+
+    const action$ =
+      this.isEditMode && this.bookId
+        ? this.bookService.updateBook(this.bookId, bookData)
+        : this.bookService.addBook(bookData);
+
+    action$.subscribe({
+      next: (book) => this.handleSuccess(book),
+      error: (err: Error) => this.handleError(err),
+    });
   }
 
   private handleSuccess(book: Book) {

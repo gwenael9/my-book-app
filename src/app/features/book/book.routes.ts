@@ -30,4 +30,8 @@ export const BOOK_ROUTES: Routes = [
     path: ':id',
     component: BookDetailComponent,
   },
+  {
+    path: ':id/edit',
+    component: BookFormComponent,
+  },
 ];
