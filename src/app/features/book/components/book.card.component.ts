@@ -62,11 +62,6 @@ export class BookCardComponent {
     this.router.navigate(['/books', this.book.id]);
   }
 
-  getBook() {
-    // faire une demande d'emprunt à l'ownerId si reel api (websocket)
-    // dans notre cas, emprunter directement avec une date de fin d'emprunt indiqué
-  }
-
   onImageLoad() {
     setTimeout(() => this.imageLoaded.set(true), 1000);
   }

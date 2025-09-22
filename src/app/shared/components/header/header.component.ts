@@ -1,6 +1,6 @@
 import { AuthModalComponent } from '@/features/auth/components/auth.modal.component';
 import { AuthService } from '@/features/auth/services/auth.service';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
@@ -24,7 +24,7 @@ import { MenuModule } from 'primeng/menu';
           ></p-button>
           @if (currentUser()) {
             <div>
-              <p-menu class="text-sm" #menu [model]="items" [popup]="true"></p-menu>
+              <p-menu class="text-sm" #menu [model]="items()" [popup]="true"></p-menu>
               <button (click)="menu.toggle($event)">
                 <p-avatar
                   image="https://primefaces.org/cdn/primeng/images/demo/avatar/xuxuefeng.png"
@@ -50,43 +50,24 @@ export class HeaderComponent {
   private router = inject(Router);
 
   isModalOpen = false;
-
   currentUser = this.authService.currentUser$;
 
-  items: MenuItem[] = [
-    {
-      label: 'Mes publications',
-      icon: PrimeIcons.BOOK,
-      routerLink: '/books/publication',
-    },
-    {
-      label: 'Mes emprunts',
-      icon: PrimeIcons.SHOPPING_CART,
-      routerLink: '/books/loan',
-    },
-    {
-      label: 'Ajouter un livre',
-      icon: PrimeIcons.PLUS,
-      routerLink: '/books/add',
-    },
-    ...(this.currentUser()?.role === 'admin'
-      ? [
-          {
-            label: 'Administration',
-            icon: PrimeIcons.COG,
-            routerLink: '/admin',
-          },
-        ]
-      : []),
-    {
-      separator: true,
-    },
-    {
-      label: 'Déconnexion',
-      icon: PrimeIcons.SIGN_OUT,
-      command: () => this.logout(),
-    },
-  ];
+  items = computed<MenuItem[]>(() => {
+    const user = this.currentUser();
+    return [
+      { label: 'Mes publications', icon: PrimeIcons.BOOK, routerLink: '/books/publication' },
+      { label: 'Mes emprunts', icon: PrimeIcons.SHOPPING_CART, routerLink: '/books/loan' },
+      { label: 'Ajouter un livre', icon: PrimeIcons.PLUS, routerLink: '/books/add' },
+      {
+        label: 'Administration',
+        icon: PrimeIcons.COG,
+        routerLink: '/admin',
+        visible: user?.role === 'admin',
+      },
+      { separator: true },
+      { label: 'Déconnexion', icon: PrimeIcons.SIGN_OUT, command: () => this.logout() },
+    ];
+  });
 
   constructor() {
     this.currentUser = this.authService.currentUser$;
