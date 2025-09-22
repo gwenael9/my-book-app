@@ -1,7 +1,8 @@
 import { AuthService } from '@/auth/services/auth.service';
 import { Book } from '@/book/models/book.model';
 import { BookService } from '@/book/services/book.service';
-import { GenericTableComponent } from '@/shared/components/ui/table.component';
+import { GenericTableComponent } from '@/shared/components/admin/table.component';
+import { ConfirmModalComponent } from '@/shared/components/confirm.modal.component';
 import { StatusPipe } from '@/shared/pipes/status.pipe';
 import { CommonModule } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
@@ -13,7 +14,15 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-admin-books-table',
   standalone: true,
-  imports: [TableModule, Button, TagModule, StatusPipe, CommonModule, GenericTableComponent],
+  imports: [
+    TableModule,
+    Button,
+    TagModule,
+    StatusPipe,
+    CommonModule,
+    GenericTableComponent,
+    ConfirmModalComponent,
+  ],
   template: `
     <app-generic-table
       [columns]="cols"
@@ -43,10 +52,18 @@ import { TagModule } from 'primeng/tag';
           <p-button text icon="pi pi-eye" (click)="goToDetail(book.id)" />
           <!-- TODO:Modifier le livre directement dans la table (primeng) -->
           <p-button text icon="pi pi-pencil" />
-          <p-button text severity="danger" icon="pi pi-trash" (click)="deleteBook(book.id)" />
+          <p-button text severity="danger" icon="pi pi-trash" (click)="confirmDelete(book)" />
         </div>
       </td>
     </ng-template>
+
+    <app-confirm-modal
+      [visible]="isConfirmModalOpen"
+      title="Supprimer le livre ?"
+      [name]="bookToDelete?.title"
+      (confirmed)="deleteBook()"
+      (visibleChange)="isConfirmModalOpen = $event"
+    ></app-confirm-modal>
   `,
 })
 export class AdminBooksTableComponent {
@@ -66,6 +83,14 @@ export class AdminBooksTableComponent {
   private bookService = inject(BookService);
   private authService = inject(AuthService);
 
+  isConfirmModalOpen = false;
+  bookToDelete: Book | null = null;
+
+  confirmDelete(book: Book) {
+    this.bookToDelete = book;
+    this.isConfirmModalOpen = true;
+  }
+
   getUserName(id: number) {
     return this.authService.getUserNameById(id);
   }
@@ -74,7 +99,9 @@ export class AdminBooksTableComponent {
     this.router.navigate(['/books', bookId]);
   }
 
-  deleteBook(bookId: number) {
-    this.bookService.deleteBook(bookId).subscribe();
+  deleteBook() {
+    if (!this.bookToDelete) return;
+    this.bookService.deleteBook(this.bookToDelete.id).subscribe();
+    this.bookToDelete = null;
   }
 }

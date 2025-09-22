@@ -1,6 +1,7 @@
 import { User } from '@/auth/models/user.model';
 import { AuthService } from '@/auth/services/auth.service';
-import { GenericTableComponent } from '@/shared/components/ui/table.component';
+import { GenericTableComponent } from '@/shared/components/admin/table.component';
+import { ConfirmModalComponent } from '@/shared/components/confirm.modal.component';
 import { HighlightDirective } from '@/shared/directives/highlight.directive';
 import { RolesPipe } from '@/shared/pipes/roles.pipe';
 import { CommonModule } from '@angular/common';
@@ -18,6 +19,7 @@ import { TableModule } from 'primeng/table';
     GenericTableComponent,
     CommonModule,
     HighlightDirective,
+    ConfirmModalComponent,
   ],
   template: `
     <app-generic-table
@@ -39,10 +41,18 @@ import { TableModule } from 'primeng/table';
       <td style="text-align:center">{{ user.role | roles }}</td>
       <td>
         <div class="flex justify-center">
-          <p-button text severity="danger" icon="pi pi-trash" (click)="deleteUser(user.id)" />
+          <p-button text severity="danger" icon="pi pi-trash" (click)="confirmDelete(user)" />
         </div>
       </td>
     </ng-template>
+
+    <app-confirm-modal
+      [visible]="isConfirmModalOpen"
+      title="Supprimer l'utilisateur ?"
+      [name]="userToDelete?.name"
+      (confirmed)="deleteUser()"
+      (visibleChange)="isConfirmModalOpen = $event"
+    ></app-confirm-modal>
   `,
 })
 export class AdminUsersTableComponent {
@@ -50,11 +60,19 @@ export class AdminUsersTableComponent {
   cols: string[] = ['ID', 'Nom', 'Email', 'Role', 'Action'];
 
   private authService = inject(AuthService);
-
   currentUser = this.authService.currentUser$;
 
-  deleteUser(userId: number) {
-    // TODO:Ajouter une modal de confirmation
-    this.authService.deleteUser(userId).subscribe();
+  isConfirmModalOpen = false;
+  userToDelete: User | null = null;
+
+  confirmDelete(user: User) {
+    this.userToDelete = user;
+    this.isConfirmModalOpen = true;
+  }
+
+  deleteUser() {
+    if (!this.userToDelete) return;
+    this.authService.deleteUser(this.userToDelete.id).subscribe();
+    this.userToDelete = null;
   }
 }

@@ -1,4 +1,5 @@
 import { AuthService } from '@/auth/services/auth.service';
+import { ConfirmModalComponent } from '@/shared/components/confirm.modal.component';
 import { StatusPipe } from '@/shared/pipes/status.pipe';
 import { CommonModule, Location } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
@@ -22,6 +23,7 @@ import { BookService } from '../services/book.service';
     SkeletonModule,
     DialogModule,
     DatePickerModule,
+    ConfirmModalComponent,
   ],
   template: `
     <div class="mb-4">
@@ -69,7 +71,12 @@ import { BookService } from '../services/book.service';
             <div class="text-end">
               @if (book.ownerId === currentUser()?.id) {
                 <p-button text icon="pi pi-pencil" (click)="editBook()" />
-                <p-button text severity="danger" icon="pi pi-trash" (click)="deleteBook()" />
+                <p-button
+                  text
+                  severity="danger"
+                  icon="pi pi-trash"
+                  (click)="this.isConfirmModalOpen = true"
+                />
               }
               @if (book.userId === currentUser()?.id) {
                 <p-button severity="danger" variant="text" (click)="endLoan()">
@@ -114,6 +121,14 @@ import { BookService } from '../services/book.service';
         </div>
       </div>
     </p-dialog>
+
+    <app-confirm-modal
+      [visible]="isConfirmModalOpen"
+      title="Supprimer le livre ?"
+      [name]="book.title"
+      (confirmed)="deleteBook()"
+      (visibleChange)="isConfirmModalOpen = $event"
+    ></app-confirm-modal>
   `,
 })
 export class BookDetailComponent {
@@ -131,6 +146,8 @@ export class BookDetailComponent {
   showModal = signal(false);
   selectedDate: Date | undefined = undefined;
   minDate: Date = new Date();
+
+  isConfirmModalOpen = false;
 
   goBack() {
     this.location.back();
