@@ -8,7 +8,6 @@ export class HighlightDirective implements OnInit {
   @Input() appHighlight = 'yellow';
 
   private el = inject(ElementRef);
-
   private renderer = inject(Renderer2);
 
   ngOnInit() {
