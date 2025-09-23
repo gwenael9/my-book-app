@@ -11,6 +11,6 @@ export class StatusPipe implements PipeTransform {
       unavailable: { label: 'Indisponible', severity: 'danger' },
       reserved: { label: 'Réservé', severity: 'warning' },
     };
-    return statusMap[status] || { label: status, severity: 'info' };
+    return statusMap[status];
   }
 }

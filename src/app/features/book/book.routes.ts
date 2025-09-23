@@ -32,6 +32,7 @@ export const BOOK_ROUTES: Routes = [
   },
   {
     path: ':id/edit',
+    canActivate: [authGuard],
     component: BookFormComponent,
   },
 ];
