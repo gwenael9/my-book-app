@@ -1,5 +1,5 @@
-import { Component, EventEmitter, inject, Input, Output, signal, ViewChild } from '@angular/core';
-import { FormsModule, NgForm } from '@angular/forms';
+import { Component, EventEmitter, inject, Input, Output, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -17,12 +17,12 @@ import { AuthService } from '../services/auth.service';
     DialogModule,
     ButtonModule,
     InputTextModule,
-    FormsModule,
     MessageModule,
     IconField,
     InputIcon,
     PasswordModule,
     FloatLabelModule,
+    ReactiveFormsModule,
   ],
   template: `
     <p-dialog
@@ -41,12 +41,12 @@ import { AuthService } from '../services/auth.service';
       </ng-template>
 
       @if (errorMessage()) {
-        <div class="my-1">
+        <div class="mt-1 mb-4">
           <p-message size="small" severity="error">{{ errorMessage() }}</p-message>
         </div>
       }
 
-      <form #authForm="ngForm" class="mt-1" (ngSubmit)="onSubmit(authForm)">
+      <form [formGroup]="authForm" class="mt-1" (ngSubmit)="onSubmit()">
         <div class="flex flex-col gap-6 mb-8">
           <div class="flex flex-col gap-1">
             <p-float-label variant="on">
@@ -55,76 +55,68 @@ import { AuthService } from '../services/auth.service';
                 <input
                   pInputText
                   id="email"
-                  name="email"
-                  [(ngModel)]="email"
-                  required
-                  email
+                  formControlName="email"
                   autocomplete="off"
                   class="w-full"
                 />
-                <label for="on_label">Email</label>
+                <label for="email">Email</label>
               </p-iconfield>
             </p-float-label>
           </div>
 
-          <div class="flex flex-col gap-1" [class.hidden]="isLogin()">
-            <p-float-label variant="on">
-              <p-iconfield>
-                <p-inputicon class="pi pi-user" />
-                <input
-                  pInputText
-                  id="username"
-                  name="username"
-                  [(ngModel)]="username"
-                  [required]="!isLogin()"
-                  username
-                  autocomplete="off"
-                  class="w-full"
-                />
-                <label for="on_label">Nom d'utilisateur</label>
-              </p-iconfield>
-            </p-float-label>
-          </div>
+          @if (!isLogin()) {
+            <div class="flex flex-col gap-1">
+              <p-float-label variant="on">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-user" />
+                  <input
+                    pInputText
+                    id="username"
+                    formControlName="username"
+                    autocomplete="off"
+                    class="w-full"
+                  />
+                  <label for="username">Nom d'utilisateur</label>
+                </p-iconfield>
+              </p-float-label>
+            </div>
+          }
 
           <div class="flex flex-col gap-1">
             <p-float-label variant="on">
-              <p-icon-field>
-                <p-inputIcon class="pi pi-key" />
+              <p-iconfield>
+                <p-inputicon class="pi pi-key" />
                 <input
                   type="password"
                   pInputText
                   id="password"
-                  name="password"
-                  [(ngModel)]="password"
-                  required
-                  minlength="6"
+                  formControlName="password"
                   autocomplete="off"
                   class="w-full"
                 />
-                <label for="on_label">Mot de passe</label>
-              </p-icon-field>
+                <label for="password">Mot de passe</label>
+              </p-iconfield>
             </p-float-label>
           </div>
 
-          <div class="flex flex-col gap-1" [class.hidden]="isLogin()">
-            <p-float-label variant="on">
-              <p-icon-field>
-                <p-inputIcon class="pi pi-key" />
-                <input
-                  type="password"
-                  pInputText
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  [(ngModel)]="confirmPassword"
-                  [required]="!isLogin()"
-                  minlength="6"
-                  autocomplete="off"
-                  class="w-full"
-                />
-                <label for="on_label">Confirmez le mot de passe</label>
-              </p-icon-field>
-            </p-float-label>
-          </div>
+          @if (!isLogin()) {
+            <div class="flex flex-col gap-1">
+              <p-float-label variant="on">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-key" />
+                  <input
+                    type="password"
+                    pInputText
+                    id="confirmPassword"
+                    formControlName="confirmPassword"
+                    autocomplete="off"
+                    class="w-full"
+                  />
+                  <label for="confirmPassword">Confirmez le mot de passe</label>
+                </p-iconfield>
+              </p-float-label>
+            </div>
+          }
 
           <p class="text-sm italic">
             {{ isLogin() ? 'Pas de compte ?' : 'Déjà un compte ?' }}
@@ -151,18 +143,20 @@ import { AuthService } from '../services/auth.service';
 export class AuthModalComponent {
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
-  @ViewChild('authForm') authForm?: NgForm;
 
   private authService = inject(AuthService);
+  private fb = inject(FormBuilder);
 
-  loading = signal<boolean>(false);
-  isLogin = signal<boolean>(true);
+  loading = signal(false);
+  isLogin = signal(true);
   errorMessage = signal<string | null>(null);
 
-  email = '';
-  password = '';
-  confirmPassword = '';
-  username = '';
+  authForm: FormGroup = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    username: [''],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    confirmPassword: [''],
+  });
 
   close() {
     this.visible = false;
@@ -177,56 +171,61 @@ export class AuthModalComponent {
   }
 
   clearForm() {
-    this.authForm?.resetForm();
+    this.authForm.reset();
     this.errorMessage.set(null);
   }
 
   swipeForm() {
     this.clearForm();
     this.isLogin.set(!this.isLogin());
+    if (this.isLogin()) {
+      this.authForm.get('username')?.clearValidators();
+      this.authForm.get('confirmPassword')?.clearValidators();
+    } else {
+      this.authForm.get('username')?.setValidators([Validators.required]);
+      this.authForm
+        .get('confirmPassword')
+        ?.setValidators([Validators.required, Validators.minLength(6)]);
+    }
+    this.authForm.get('username')?.updateValueAndValidity();
+    this.authForm.get('confirmPassword')?.updateValueAndValidity();
   }
 
-  onSubmit(form: NgForm) {
+  onSubmit() {
     this.errorMessage.set(null);
-    if (!form.valid) return;
+    if (this.authForm.invalid) return;
     this.loading.set(true);
 
+    const { email, username, password, confirmPassword } = this.authForm.value;
+
     if (this.isLogin()) {
-      this.authService.login({ email: this.email, password: this.password }).subscribe({
+      this.authService.login({ email, password }).subscribe({
         next: () => this.handleSuccess(),
         error: (err: Error) => this.handleError(err),
       });
     } else {
-      if (this.password !== this.confirmPassword) {
+      if (password !== confirmPassword) {
         this.loading.set(false);
         this.errorMessage.set('Les mots de passe ne correspondent pas');
         return;
       }
-      this.authService
-        .register({
-          email: this.email,
-          password: this.password,
-          name: this.username,
-        })
-        .subscribe({
-          next: () => this.handleSuccess(),
-          error: (err: Error) => this.handleError(err),
-        });
+      this.authService.register({ email, password, name: username }).subscribe({
+        next: () => this.handleSuccess(),
+        error: (err: Error) => this.handleError(err),
+      });
     }
   }
 
   private handleSuccess() {
     this.loading.set(false);
-    if (this.isLogin()) {
-      this.close();
-    }
+    if (this.isLogin()) this.close();
     this.swipeForm();
   }
 
   private handleError(err: Error) {
     this.errorMessage.set(err?.message || 'Erreur lors de la requête');
     this.loading.set(false);
-    this.password = '';
-    this.confirmPassword = '';
+    this.authForm.get('password')?.reset();
+    this.authForm.get('confirmPassword')?.reset();
   }
 }

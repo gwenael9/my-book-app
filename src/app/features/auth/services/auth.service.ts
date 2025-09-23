@@ -59,7 +59,12 @@ export class AuthService {
   register(userData: RegisterRequest): Observable<User> {
     const existingUser = this.users.find((u) => u.email === userData.email);
     if (existingUser) {
-      return throwError(() => new Error('Cet email est déjà utilisé'));
+      return throwError(() => new Error('Cet email est déjà utilisé.'));
+    }
+
+    const existingUserName = this.users.find((u) => u.name === userData.name);
+    if (existingUserName) {
+      return throwError(() => new Error("Ce nom d'utilisateur est déjà utilisé."));
     }
 
     const newUser: User = {
