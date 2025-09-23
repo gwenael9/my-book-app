@@ -27,10 +27,8 @@ export class AuthService {
 
   constructor() {
     this.loadUsersFromLocalStorage();
-    // Vérifier s'il y a un utilisateur en session
     const token = localStorage.getItem('token');
     if (token) {
-      // this.currentUser.set(JSON.parse(token));
       const user = this.decodeToken(token);
       this.currentUser.set(user);
     }
@@ -52,7 +50,6 @@ export class AuthService {
         life: 3000,
       });
 
-      // Simuler un délai réseau
       return of(user).pipe(delay(500));
     } else {
       return throwError(() => new Error('Email ou mot de passe incorrect'));
@@ -60,13 +57,11 @@ export class AuthService {
   }
 
   register(userData: RegisterRequest): Observable<User> {
-    // Vérifier si l'email existe déjà
     const existingUser = this.users.find((u) => u.email === userData.email);
     if (existingUser) {
       return throwError(() => new Error('Cet email est déjà utilisé'));
     }
 
-    // Créer un nouvel utilisateur
     const newUser: User = {
       id: this.users.length + 1,
       name: userData.name,
@@ -76,7 +71,6 @@ export class AuthService {
       createdAt: new Date(),
     };
 
-    // Ajouter aux mock data
     this.users.push(newUser);
     this.passwords[userData.email] = userData.password;
 
@@ -89,7 +83,6 @@ export class AuthService {
       life: 3000,
     });
 
-    // Simuler un délai réseau
     return of(newUser).pipe(delay(500));
   }
 
@@ -161,7 +154,6 @@ export class AuthService {
     }
   }
 
-  // Méthode pour simuler la génération d'un JWT (payload encodé en base64)
   private generateMockJwt(user: User): string {
     const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
     const payload = btoa(
@@ -171,7 +163,6 @@ export class AuthService {
     return `${header}.${payload}.${signature}`;
   }
 
-  // Méthode pour décoder le token JWT simulé
   private decodeToken(token: string): User | null {
     try {
       const payload = token.split('.')[1];
