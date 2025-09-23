@@ -7,7 +7,7 @@ export const mockBooks: Book[] = [
     author: 'George Orwell',
     status: 'free',
     description: '',
-    ownerId: 3,
+    ownerId: 2,
     createdAt: new Date(),
     updatedAt: new Date(),
     availableAt: new Date(),
@@ -26,7 +26,7 @@ export const mockBooks: Book[] = [
     availableAt: new Date('2025-09-24T00:00:00Z'),
     available: false,
     image: 2,
-    userId: 3,
+    userId: 2,
   },
   {
     id: 3,

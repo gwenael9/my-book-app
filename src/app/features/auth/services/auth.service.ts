@@ -106,11 +106,12 @@ export class AuthService {
   }
 
   deleteUser(userId: number): Observable<void> {
-    if (!this.currentUser) return throwError(() => new Error("Vous n'êtes pas connecté."));
+    const userToDelete = this.currentUser;
+    if (!userToDelete) return throwError(() => new Error("Vous n'êtes pas connecté."));
 
-    const isMyAccount = this.currentUser()?.id === userId;
+    const isMyAccount = userToDelete()?.id === userId;
 
-    if (this.currentUser()?.role === 'user' && !isMyAccount)
+    if (userToDelete()?.role === 'user' && !isMyAccount)
       return throwError(() => new Error("Vous n'êtes pas autorisé à supprimer cet utilisateur."));
 
     const userIndex = this.users.findIndex((b) => b.id === userId);
@@ -121,10 +122,6 @@ export class AuthService {
     if (isMyAccount) {
       this.logout(true);
     }
-
-    /**
-     * TODO:Supprimer également tout les livres de l'user
-     */
 
     this.users.splice(userIndex, 1);
     this.saveUserToLocalStorage();

@@ -1,5 +1,6 @@
 import { User } from '@/auth/models/user.model';
 import { AuthService } from '@/auth/services/auth.service';
+import { BookService } from '@/book/services/book.service';
 import { GenericTableComponent } from '@/shared/components/admin/table.component';
 import { ConfirmModalComponent } from '@/shared/components/confirm.modal.component';
 import { HighlightDirective } from '@/shared/directives/highlight.directive';
@@ -60,6 +61,7 @@ export class AdminUsersTableComponent {
   cols: string[] = ['ID', 'Nom', 'Email', 'Role', 'Action'];
 
   private authService = inject(AuthService);
+  private bookService = inject(BookService);
   currentUser = this.authService.currentUser$;
 
   isConfirmModalOpen = false;
@@ -73,6 +75,7 @@ export class AdminUsersTableComponent {
   deleteUser() {
     if (!this.userToDelete) return;
     this.authService.deleteUser(this.userToDelete.id).subscribe();
+    this.bookService.deleteAllBooksFromUserId(this.userToDelete.id).subscribe();
     this.userToDelete = null;
   }
 }

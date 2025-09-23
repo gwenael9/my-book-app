@@ -38,8 +38,7 @@ export class BookService {
   }
 
   addBook(book: CreateBook): Observable<Book> {
-    const currentUser = this.authService.currentUser$;
-    const userId = currentUser()?.id;
+    const userId = this.authService.currentUser$()?.id;
     if (!userId) return throwError(() => new Error("Vous n'êtes pas connecté."));
 
     const existingBook = this.getBookByUser(userId).find(
@@ -78,14 +77,13 @@ export class BookService {
   }
 
   loanBook(bookId: number, newDate: Date): Observable<Book> {
-    const currentUser = this.authService.currentUser$;
-    const userId = currentUser()?.id;
+    const userId = this.authService.currentUser$()?.id;
     if (!userId) return throwError(() => new Error("Vous n'êtes pas connecté."));
 
     const bookIndex = this.books.findIndex((b) => b.id === bookId);
     if (bookIndex === -1) return throwError(() => new Error("Ce livre n'est pas disponible."));
 
-    // ajouter une verif sur la date
+    // TODO:ajouter une verif sur la date
 
     const updatedBook: Book = {
       ...this.books[bookIndex],
@@ -109,8 +107,7 @@ export class BookService {
   }
 
   returnBook(bookId: number): Observable<Book> {
-    const currentUser = this.authService.currentUser$;
-    const userId = currentUser()?.id;
+    const userId = this.authService.currentUser$()?.id;
     if (!userId) return throwError(() => new Error("Vous n'êtes pas connecté."));
 
     const bookIndex = this.books.findIndex((b) => b.id === bookId);
@@ -143,8 +140,7 @@ export class BookService {
   }
 
   deleteBook(bookId: number): Observable<void> {
-    const currentUser = this.authService.currentUser$;
-    const user = currentUser();
+    const user = this.authService.currentUser$();
     if (!user) return throwError(() => new Error("Vous n'êtes pas connecté."));
 
     const bookIndex = this.books.findIndex((b) => b.id === bookId);
@@ -165,6 +161,40 @@ export class BookService {
       life: 3000,
     });
 
+    return of(void 0).pipe(delay(100));
+  }
+
+  /**
+   * Permet de supprimer les livres créer par un user et terminer ses emprunts
+   * @param userId user to Delete
+   */
+  deleteAllBooksFromUserId(userId: number): Observable<void> {
+    let changed = false;
+
+    this.books = this.books
+      .map((book) => {
+        if (book.ownerId === userId) {
+          changed = true;
+          return null;
+        }
+
+        if (book.userId === userId) {
+          changed = true;
+          return {
+            ...book,
+            userId: undefined,
+            availableAt: new Date(),
+            available: true,
+            status: 'free',
+          };
+        }
+        return book;
+      })
+      .filter((book): book is Book => book !== null);
+
+    if (changed) {
+      this.saveBookToLocalStorage();
+    }
     return of(void 0).pipe(delay(100));
   }
 
