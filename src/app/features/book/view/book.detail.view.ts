@@ -79,9 +79,7 @@ import { BookService } from '../services/book.service';
                 />
               }
               @if (book.userId === currentUser()?.id) {
-                <p-button severity="danger" variant="text" (click)="endLoan()">
-                  Terminer l'emprunt
-                </p-button>
+                <p-button severity="danger" label="Terminer l'emprunt" (click)="endLoan()" />
               }
               @if (book.available && book.ownerId !== currentUser()?.id) {
                 <div class="flex justify-end gap-2">

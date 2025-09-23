@@ -1,5 +1,5 @@
 import { AuthService } from '@/auth/services/auth.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -104,6 +104,9 @@ import { BookService } from '../services/book.service';
         </div>
 
         <div class="flex justify-end gap-2">
+          @if (isEditMode) {
+            <p-button label="Annuler" variant="outlined" (click)="goBack()" />
+          }
           <p-button
             type="submit"
             [severity]="isEditMode ? 'warn' : 'success'"
@@ -125,6 +128,11 @@ export class BookFormComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private location = inject(Location);
+
+  goBack() {
+    this.location.back();
+  }
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
