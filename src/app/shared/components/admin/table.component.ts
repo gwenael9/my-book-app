@@ -38,7 +38,5 @@ export class GenericTableComponent<T> {
   @Input() rowsPerPageOptions = [2, 5, 10];
   @Input() paginator = true;
 
-  trackByCol(col: string): number {
-    return this.columns.indexOf(col);
-  }
+  trackByCol = (col: string) => this.columns.indexOf(col);
 }

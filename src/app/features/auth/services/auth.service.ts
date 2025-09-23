@@ -1,4 +1,5 @@
 import { mockUsers } from '@/app/mock-data';
+import { capitalizeFirstLetter } from '@/shared/utils/capitalize';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { delay, Observable, of, throwError } from 'rxjs';
@@ -107,7 +108,7 @@ export class AuthService {
   getUserNameById(userId: number): string {
     const user = this.users.find((u) => u.id === userId);
     if (!user) return 'Utilisateur inconnu';
-    return user.name;
+    return capitalizeFirstLetter(user.name);
   }
 
   deleteUser(userId: number): Observable<void> {

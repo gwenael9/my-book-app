@@ -5,6 +5,7 @@ import { CommonModule, Location } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AvatarModule } from 'primeng/avatar';
 import { Button } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
@@ -24,18 +25,18 @@ import { BookService } from '../services/book.service';
     DialogModule,
     DatePickerModule,
     ConfirmModalComponent,
+    AvatarModule,
+    TagModule,
   ],
   template: `
-    <div class="mb-4">
-      <p-button
-        label="Retour"
-        icon="pi pi-arrow-left"
-        styleClass="p-button-text"
-        (click)="goBack()"
-      />
-    </div>
+    <p-button
+      label="Retour"
+      icon="pi pi-arrow-left"
+      styleClass="p-button-text"
+      (click)="goBack()"
+    />
     @if (book) {
-      <div class="mx-auto flex flex-col md:flex-row gap-4">
+      <div class="mx-auto flex flex-col md:flex-row gap-4 mt-4">
         <div class="flex w-full md:w-1/2 justify-center bg-gray-100 rounded-lg overflow-hidden">
           <img
             src="/books/{{ book.image }}.jpg"
@@ -67,30 +68,41 @@ import { BookService } from '../services/book.service';
               </p>
             }
           </div>
-          <div class="flex-grow ">
-            <div class="text-end">
+          <div class="flex-grow">
+            <div class="flex justify-end">
               @if (book.ownerId === currentUser()?.id) {
-                <p-button text icon="pi pi-pencil" (click)="editBook()" />
-                <p-button
-                  text
-                  severity="danger"
-                  icon="pi pi-trash"
-                  (click)="this.isConfirmModalOpen = true"
-                />
+                <div class="flex gap-2">
+                  <p-button text icon="pi pi-pencil" (click)="editBook()" />
+                  <p-button
+                    text
+                    severity="danger"
+                    icon="pi pi-trash"
+                    (click)="this.isConfirmModalOpen = true"
+                  />
+                </div>
               }
               @if (book.userId === currentUser()?.id) {
                 <p-button severity="danger" label="Terminer l'emprunt" (click)="endLoan()" />
               }
               @if (book.available && book.ownerId !== currentUser()?.id) {
-                <div class="flex justify-end gap-2">
-                  <p-button label="Emprunter" (click)="openModal()" />
-                </div>
+                <p-button label="Emprunter" (click)="openModal()" />
               }
             </div>
           </div>
-          <p class="text-xs text-gray-500 text-right">
-            {{ book.createdAt | date: 'd MMMM y, HH:mm' }}
-          </p>
+          <div class="flex justify-between items-center mt-2">
+            <div class="flex items-center gap-2">
+              <p-avatar
+                image="https://primefaces.org/cdn/primeng/images/demo/avatar/xuxuefeng.png"
+                shape="circle"
+              />
+              <p class="text-gray-500 font-semibold">
+                {{ isMyBook ? 'Vous' : getUserName(book.ownerId) }}
+              </p>
+            </div>
+            <p class="text-xs text-gray-500">
+              {{ book.createdAt | date: 'd MMMM y, HH:mm' }}
+            </p>
+          </div>
         </div>
       </div>
     } @else {
@@ -147,6 +159,8 @@ export class BookDetailComponent {
 
   isConfirmModalOpen = false;
 
+  isMyBook = this.book.ownerId === this.currentUser()?.id;
+
   goBack() {
     this.location.back();
   }
@@ -191,5 +205,9 @@ export class BookDetailComponent {
 
   onImageLoad() {
     setTimeout(() => this.imageLoaded.set(true), 1000);
+  }
+
+  getUserName(userId: number): string {
+    return this.authService.getUserNameById(userId);
   }
 }

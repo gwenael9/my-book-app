@@ -1,5 +1,6 @@
 import { AuthModalComponent } from '@/features/auth/components/auth.modal.component';
 import { AuthService } from '@/features/auth/services/auth.service';
+import { capitalizeFirstLetter } from '@/shared/utils/capitalize';
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { MenuItem, PrimeIcons } from 'primeng/api';
@@ -24,7 +25,23 @@ import { MenuModule } from 'primeng/menu';
           ></p-button>
           @if (currentUser()) {
             <div>
-              <p-menu class="text-sm" #menu [model]="items()" [popup]="true"></p-menu>
+              <p-menu class="text-sm" #menu [model]="items()" [popup]="true">
+                <ng-template #start>
+                  <div class="flex flex-col items-center py-2 gap-1">
+                    <p-avatar
+                      image="https://primefaces.org/cdn/primeng/images/demo/avatar/xuxuefeng.png"
+                      shape="circle"
+                      size="xlarge"
+                    />
+                    <p>
+                      <span class="font-bold">{{ getCapitalizedName() }}</span>
+                      <span class="text-sm italic text-gray-500 font-semibold">
+                        ({{ getUserRole() }})
+                      </span>
+                    </p>
+                  </div>
+                </ng-template>
+              </p-menu>
               <button (click)="menu.toggle($event)">
                 <p-avatar
                   image="https://primefaces.org/cdn/primeng/images/demo/avatar/xuxuefeng.png"
@@ -55,6 +72,7 @@ export class HeaderComponent {
   items = computed<MenuItem[]>(() => {
     const user = this.currentUser();
     return [
+      { separator: true },
       { label: 'Mes publications', icon: PrimeIcons.BOOK, routerLink: '/books/publication' },
       { label: 'Mes emprunts', icon: PrimeIcons.SHOPPING_CART, routerLink: '/books/loan' },
       { label: 'Ajouter un livre', icon: PrimeIcons.PLUS, routerLink: '/books/add' },
@@ -85,5 +103,15 @@ export class HeaderComponent {
     this.closeModal();
     this.router.navigate(['/']);
     this.authService.logout();
+  }
+
+  getCapitalizedName(): string {
+    const user = this.currentUser?.();
+    return user ? capitalizeFirstLetter(user.name) : '';
+  }
+
+  getUserRole(): string {
+    const user = this.currentUser?.();
+    return user ? user.role.toUpperCase() : '';
   }
 }
