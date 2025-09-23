@@ -1,3 +1,4 @@
+import { BookSectionComponent } from '@/shared/components/book/book.section.component';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { BookCardComponent } from '../components/book.card.component';
@@ -6,23 +7,22 @@ import { BookService } from '../services/book.service';
 
 @Component({
   selector: 'app-book-list',
-  imports: [CommonModule, BookCardComponent],
+  imports: [CommonModule, BookCardComponent, BookSectionComponent],
   standalone: true,
   template: `
-    <h2 class="text-primary font-semibold text-xl">
-      Tout les livres ({{ booksToDisplay.length }})
-    </h2>
-    <label class="inline-flex items-center gap-2 mt-2">
-      <input type="checkbox" (change)="showAvailableOnly = $event.target.checked" />
-      Afficher seulement les livres disponibles
-    </label>
-    <div class="flex justify-center mt-5">
-      <div class="flex flex-col flex-wrap sm:flex-row gap-8 sm:gap-4 overflow-hidden">
+    <app-book-section
+      title="Tous les livres ({{ booksToDisplay.length }})"
+      [empty]="booksToDisplay.length === 0"
+      emptyMessage="Aucun livre de disponibles."
+      emptyActionLabel="Créer en un"
+      emptyActionLink="/books/add"
+    >
+      <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
         @for (book of booksToDisplay; track trackByBookId(book)) {
           <app-book-card [book]="book"></app-book-card>
         }
       </div>
-    </div>
+    </app-book-section>
   `,
 })
 export class BookListComponent {
@@ -35,7 +35,5 @@ export class BookListComponent {
       : this.bookService.getAllBooks();
   }
 
-  trackByBookId(book: Book): number {
-    return book.id;
-  }
+  trackByBookId = (book: Book) => book.id;
 }

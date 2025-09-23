@@ -14,7 +14,7 @@ import { Book } from '../models/book.model';
   imports: [CommonModule, DialogModule, ButtonModule, SkeletonModule, TagModule, StatusPipe],
   template: `
     <div
-      class="relative w-full sm:h-80 overflow-hidden rounded-lg group bg-gray-100 flex items-center justify-center"
+      class="relative w-full sm:h-80 overflow-hidden rounded-lg group"
       role="button"
       tabindex="0"
       (click)="goToDetail()"
@@ -26,7 +26,7 @@ import { Book } from '../models/book.model';
         (load)="onImageLoad()"
         src="/books/{{ book.image }}.jpg"
         alt="Book cover"
-        class="sm:w-full h-[400px] sm:h-full object-cover transition duration-300 ease-in-out sm:group-hover:scale-105"
+        class="w-full h-full object-cover transition duration-300 ease-in-out group-hover:scale-105"
       />
 
       <div
