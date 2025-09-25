@@ -69,25 +69,27 @@ import { BookService } from '../services/book.service';
             }
           </div>
           <div class="flex-grow">
-            <div class="flex justify-end">
-              @if (book.ownerId === currentUser()?.id) {
-                <div class="flex gap-2">
-                  <p-button text icon="pi pi-pencil" (click)="editBook()" />
-                  <p-button
-                    text
-                    severity="danger"
-                    icon="pi pi-trash"
-                    (click)="this.isConfirmModalOpen = true"
-                  />
-                </div>
-              }
-              @if (book.userId === currentUser()?.id) {
-                <p-button severity="danger" label="Terminer l'emprunt" (click)="endLoan()" />
-              }
-              @if (book.available && book.ownerId !== currentUser()?.id) {
-                <p-button label="Emprunter" (click)="openModal()" />
-              }
-            </div>
+            @if (currentUser()) {
+              <div class="flex justify-end">
+                @if (book.ownerId === currentUser()?.id) {
+                  <div class="flex gap-2">
+                    <p-button text icon="pi pi-pencil" (click)="editBook()" />
+                    <p-button
+                      text
+                      severity="danger"
+                      icon="pi pi-trash"
+                      (click)="this.isConfirmModalOpen = true"
+                    />
+                  </div>
+                }
+                @if (book.userId === currentUser()?.id) {
+                  <p-button severity="danger" label="Terminer l'emprunt" (click)="endLoan()" />
+                }
+                @if (book.available && book.ownerId !== currentUser()?.id) {
+                  <p-button label="Emprunter" (click)="openModal()" />
+                }
+              </div>
+            }
           </div>
           <div class="flex justify-between items-center mt-2">
             <div class="flex items-center gap-2">
