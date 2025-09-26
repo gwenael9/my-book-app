@@ -3,6 +3,8 @@ import { BookService } from '@/book/services/book.service';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
+import { Observable } from 'rxjs';
+import { Book } from '../../book/models/book.model';
 import { AdminBooksTableComponent } from '../components/books.table.component';
 import { AdminUsersTableComponent } from '../components/users.table.component';
 
@@ -20,7 +22,7 @@ import { AdminUsersTableComponent } from '../components/users.table.component';
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel value="0">
-            <app-admin-books-table [books]="books" />
+            <app-admin-books-table [books]="(books$ | async) || []" />
           </p-tabpanel>
           <p-tabpanel value="1">
             <app-admin-users-table [users]="users" />
@@ -31,6 +33,9 @@ import { AdminUsersTableComponent } from '../components/users.table.component';
   `,
 })
 export class AdminComponent {
-  books = inject(BookService).getAllBooks();
-  users = inject(AuthService).getAllUsers();
+  private bookService = inject(BookService);
+  private authService = inject(AuthService);
+
+  books$: Observable<Book[]> = this.bookService.getAllBooksLive();
+  users = this.authService.getAllUsers();
 }

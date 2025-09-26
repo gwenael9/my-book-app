@@ -2,7 +2,7 @@ import { mockBooks } from '@/app/mock-data';
 import { AuthService } from '@/features/auth/services/auth.service';
 import { computed, inject, Injectable } from '@angular/core';
 import { MessageService } from 'primeng/api';
-import { delay, Observable, of, throwError } from 'rxjs';
+import { BehaviorSubject, delay, Observable, of, throwError } from 'rxjs';
 import { Book, CreateBook } from '../models/book.model';
 
 @Injectable({
@@ -15,6 +15,11 @@ export class BookService {
   private messageService = inject(MessageService);
 
   private books: Book[] = [];
+  private booksSubject = new BehaviorSubject<Book[]>(this.books);
+
+  private emitBooks() {
+    this.booksSubject.next([...this.books]);
+  }
 
   constructor() {
     this.loadBooksFromLocalStorage();
@@ -22,6 +27,10 @@ export class BookService {
 
   public getAllBooks = computed(() => this.books);
   public getBooksAvailable = computed(() => this.books.filter((book) => book.available));
+
+  public getAllBooksLive(): Observable<Book[]> {
+    return this.booksSubject.asObservable();
+  }
 
   getBookByUser(userId?: number): Book[] {
     this.delay(200);
@@ -194,6 +203,7 @@ export class BookService {
 
     if (changed) {
       this.saveBookToLocalStorage();
+      this.emitBooks();
     }
     return of(void 0).pipe(delay(100));
   }
@@ -258,5 +268,6 @@ export class BookService {
     } else {
       this.books = [...this.defaultBooks];
     }
+    this.emitBooks();
   }
 }

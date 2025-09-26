@@ -9,6 +9,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, Input } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
+import { switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-admin-users-table',
@@ -74,8 +75,11 @@ export class AdminUsersTableComponent {
 
   deleteUser() {
     if (!this.userToDelete) return;
-    this.authService.deleteUser(this.userToDelete.id).subscribe();
-    this.bookService.deleteAllBooksFromUserId(this.userToDelete.id).subscribe();
+    const userId = this.userToDelete.id;
+    this.authService
+      .deleteUser(userId)
+      .pipe(switchMap(() => this.bookService.deleteAllBooksFromUserId(userId)))
+      .subscribe();
     this.userToDelete = null;
   }
 }
