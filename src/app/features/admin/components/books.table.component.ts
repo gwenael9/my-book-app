@@ -50,8 +50,7 @@ import { TagModule } from 'primeng/tag';
       <td>
         <div class="flex justify-center">
           <p-button text icon="pi pi-eye" (click)="goToDetail(book.id)" />
-          <!-- TODO:Modifier le livre directement dans la table (primeng) -->
-          <p-button text icon="pi pi-pencil" />
+          <p-button text icon="pi pi-pencil" (click)="editBook(book.id)" />
           <p-button text severity="danger" icon="pi pi-trash" (click)="confirmDelete(book)" />
         </div>
       </td>
@@ -103,5 +102,9 @@ export class AdminBooksTableComponent {
     if (!this.bookToDelete) return;
     this.bookService.deleteBook(this.bookToDelete.id).subscribe();
     this.bookToDelete = null;
+  }
+
+  editBook(bookId: number) {
+    this.router.navigate([`/books/${bookId}/edit`]);
   }
 }

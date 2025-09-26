@@ -1,5 +1,6 @@
 import { AuthService } from '@/auth/services/auth.service';
 import { BookService } from '@/book/services/book.service';
+import { EmptyObjectComponent } from '@/shared/components/empty.object.component';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
@@ -11,7 +12,13 @@ import { AdminUsersTableComponent } from '../components/users.table.component';
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, TabsModule, AdminBooksTableComponent, AdminUsersTableComponent],
+  imports: [
+    CommonModule,
+    TabsModule,
+    AdminBooksTableComponent,
+    AdminUsersTableComponent,
+    EmptyObjectComponent,
+  ],
   template: `
     <h2 class="text-primary font-semibold text-xl">Administration</h2>
     <div class="mx-12 mt-4">
@@ -22,7 +29,15 @@ import { AdminUsersTableComponent } from '../components/users.table.component';
         </p-tablist>
         <p-tabpanels>
           <p-tabpanel value="0">
-            <app-admin-books-table [books]="(books$ | async) || []" />
+            @if (((books$ | async) || []).length === 0) {
+              <app-empty-object
+                emptyMessage="Aucun livre de disponibles."
+                emptyActionLink="/books/add"
+                emptyActionLabel="Ajouter un livre"
+              />
+            } @else {
+              <app-admin-books-table [books]="(books$ | async) || []" />
+            }
           </p-tabpanel>
           <p-tabpanel value="1">
             <app-admin-users-table [users]="users" />

@@ -11,14 +11,14 @@ import { BookService } from '../services/book.service';
   standalone: true,
   template: `
     <app-book-section
-      title="Tous les livres ({{ booksToDisplay.length }})"
-      [empty]="booksToDisplay.length === 0"
+      title="Tous les livres ({{ books.length }})"
+      [empty]="books.length === 0"
       emptyMessage="Aucun livre de disponibles."
       emptyActionLabel="Créer en un"
       emptyActionLink="/books/add"
     >
       <div class="flex flex-col sm:flex-row sm:flex-wrap gap-4">
-        @for (book of booksToDisplay; track trackByBookId(book)) {
+        @for (book of books; track trackByBookId(book)) {
           <app-book-card [book]="book"></app-book-card>
         }
       </div>
@@ -29,11 +29,7 @@ export class BookListComponent {
   bookService = inject(BookService);
   showAvailableOnly = false;
 
-  get booksToDisplay() {
-    return this.showAvailableOnly
-      ? this.bookService.getBooksAvailable()
-      : this.bookService.getAllBooks();
-  }
+  books = this.bookService.getAllBooks();
 
   trackByBookId = (book: Book) => book.id;
 }

@@ -203,7 +203,6 @@ export class BookService {
 
     if (changed) {
       this.saveBookToLocalStorage();
-      this.emitBooks();
     }
     return of(void 0).pipe(delay(100));
   }
@@ -252,6 +251,7 @@ export class BookService {
 
   private saveBookToLocalStorage(): void {
     localStorage.setItem('allBooks', JSON.stringify(this.books));
+    this.emitBooks();
   }
 
   private loadBooksFromLocalStorage(): void {

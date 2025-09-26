@@ -211,7 +211,11 @@ export class BookFormComponent implements OnInit {
 
   private handleSuccess(book: Book) {
     this.loading.set(false);
-    this.router.navigate([`/books/${book.id}`]);
+    if (this.isEditMode) {
+      this.location.back();
+    } else {
+      this.router.navigate([`/books/${book.id}`]);
+    }
   }
 
   private handleError(err: Error) {
@@ -221,12 +225,12 @@ export class BookFormComponent implements OnInit {
 
   responsiveOptions = [
     {
-      breakpoint: '768px', // max-width 768px (mobile)
+      breakpoint: '768px',
       numVisible: 1,
       numScroll: 1,
     },
     {
-      breakpoint: '1200px', // max-width 1200px (tablette)
+      breakpoint: '1200px',
       numVisible: 2,
       numScroll: 1,
     },
